@@ -1,0 +1,117 @@
+library(shiny)
+library(wavesurfer)
+
+pasta_wavs <- "/media/athos/DATA/OneDrive/Documents/mestrado/data-raw/wav_12khz/"
+shiny::addResourcePath("wavs", pasta_wavs)
+pasta_anotacoes <- "/media/athos/DATA/OneDrive/Documents/mestrado/data/anotacoes/"
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Anotador"),
+
+    uiOutput("especies"),
+    uiOutput("arquivo_wav"),
+    wavesurferOutput("meu_ws", height = "100%"),
+    actionButton("play", "Play", icon = icon("play")),
+    actionButton("pause", "Pause", icon = icon("pause")),
+    actionButton("save", "Save", icon = icon("save")),
+    actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
+    tags$br(),
+    verbatimTextOutput("regions_class"),
+    verbatimTextOutput("regions")
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output, session) {
+
+    passaros <- readr::read_rds("/media/athos/DATA/OneDrive/Documents/mestrado/data/passaros.rds")
+    wav_name <- reactive({stringr::str_replace(input$audio, "^wavs/", "")})
+    output$especies <- renderUI({
+        selectizeInput(
+            "especie",
+            "Espécie: ",
+            choices = passaros$especie,
+            width = "100%"
+        )
+    })
+
+    output$arquivo_wav <- renderUI({
+        req(!is.null(input$especie))
+
+        audios_nao_anotados <- paste0("wavs/", list.files(pasta_wavs, pattern = input$especie))
+        audios_anotados <- paste0("wavs/", stringr::str_replace(list.files(paste0(pasta_anotacoes)), "rds$", "wav"))
+        audios_nao_anotados <- audios_nao_anotados[!audios_nao_anotados %in% audios_anotados]
+
+        selectizeInput(
+            "audio",
+            "Audio: ",
+            choices = audios_nao_anotados,
+            width = "100%"
+        )
+    })
+
+    output$meu_ws <- renderWavesurfer({
+        req(!is.null(input$audio))
+        annotations_path <- stringr::str_replace_all(stringr::str_replace_all(input$audio, "wav$", "rds"), "^wavs/", "")
+        annotations_path <- paste0(pasta_anotacoes, annotations_path)
+
+        if(file.exists(annotations_path)) {
+            annotations_df <- readr::read_rds(annotations_path)
+        } else {
+            annotations_df <- NULL
+        }
+
+        wavesurfer(input$audio, waveColor = "#aa88ff", plugins = c("regions"), annotations = annotations_df)
+
+    })
+
+    observeEvent(input$play, {
+        ws_play("meu_ws")
+    })
+
+    observeEvent(input$pause, {
+        ws_pause("meu_ws")
+    })
+
+    observeEvent(input$save, {
+        req(!is.null(wav_name()))
+        annotations <- stringr::str_replace_all(stringr::str_replace_all(input$audio, "wav$", "rds"), "^wavs/", "")
+        regions <- input$meu_ws_regions %>% dplyr::mutate(sound_id = wav_name())
+        readr::write_rds(x = regions, path = paste0(pasta_anotacoes, annotations))
+    })
+
+    observeEvent(input$sugerir_regioes, {
+
+        wav <- tuneR::readWave(paste0(pasta_wavs, wav_name()))
+
+        ## funcao do auto detector
+        auto_detect_partial <- purrr::partial(
+            warbleR::auto_detec,
+            X = data.frame(sound.files = wav_name(), selec = 1, start = 0, end = Inf),
+            path = pasta_wavs,
+            pb = FALSE
+        )
+        params_do_auto_detec <- passaros$parametros_do_auto_detect[[input$especie]]
+        ## segmentacoes encontradas
+        suggested_annotations <- do.call(auto_detect_partial, params_do_auto_detec)
+        suggested_annotations$sound.files <- wav_name()
+        names(suggested_annotations) <- c("sound_id", "segmentation_id", "start", "end")
+        ws_addRegions("meu_ws", suggested_annotations)
+    })
+
+    output$regions_class <- renderPrint({
+        class(input$meu_ws_regions)
+    })
+
+    output$regions <- renderPrint({
+        input$meu_ws_regions
+    })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+
+
+

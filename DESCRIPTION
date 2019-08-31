@@ -1,0 +1,22 @@
+Package: wavesurfer
+Title: R interface to wavesurfer.js
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Athos",
+           family = "Damiani",
+           role = c("aut", "cre"),
+           email = "athos.damiani@curso-r.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: R interface to wavesurfer.js
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+RoxygenNote: 6.1.1
+Imports: 
+    magrittr,
+    htmlwidgets
+VignetteBuilder: knitr
