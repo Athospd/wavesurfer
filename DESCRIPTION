@@ -18,5 +18,6 @@ Suggests:
 RoxygenNote: 6.1.1
 Imports: 
     magrittr,
-    htmlwidgets
+    htmlwidgets,
+    htmltools
 VignetteBuilder: knitr

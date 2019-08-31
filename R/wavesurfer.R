@@ -89,16 +89,18 @@ wavesurfer <- function(audio,
   )
 
   # forward options using x
-  setup = list(
+  x = list(
     audio = audio,
     settings = settings,
     annotations = annotations
   )
 
+  x$api <- list()
+
   # create widget
   htmlwidgets::createWidget(
     name = 'wavesurfer',
-    setup,
+    x,
     width = width,
     height = height,
     package = 'wavesurfer',
@@ -135,6 +137,6 @@ renderWavesurfer <- function(expr, env = parent.frame(), quoted = FALSE) {
 }
 
 wavesurfer_html <- function(id, style, class, ...) {
-  tags$div(id = id, style = style, class = class)
+  htmltools::tags$div(id = id, style = style, class = class)
 }
 

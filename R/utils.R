@@ -4,16 +4,19 @@
   })
 }
 
-is_called_inside_shiny <- function(session, context="") {
-  if (is.null(session)) {
-    stop(paste(context, "must be called from the server function of a Shiny app"))
-  }
-}
-
 callJS <- function() {
   message <- Filter(function(x) !is.symbol(x), as.list(parent.frame(1)))
   session <- shiny::getDefaultReactiveDomain()
-  is_called_inside_shiny(session, message$method)
-  method <- paste0("wavesurfer:", message$method)
-  session$sendCustomMessage(method, message)
+  if (methods::is(message$id, "wavesurfer")) {
+    widget <- message$id
+    message$id <- NULL
+    widget$x$api <- c(widget$x$api, list(message))
+    return(widget)
+  } else if (is.character(message$id)) {
+    method <- paste0("wavesurfer:", message$method)
+    session$sendCustomMessage(method, message)
+    return(message$id)
+  } else {
+    stop("The `id` argument must be either a wavesurfer htmlwidget or an ID of a wavesurfer htmlwidget.", call. = FALSE)
+  }
 }

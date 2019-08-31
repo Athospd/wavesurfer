@@ -16,6 +16,8 @@ ui <- fluidPage(
     wavesurferOutput("meu_ws", height = "100%"),
     actionButton("play", "Play", icon = icon("play")),
     actionButton("pause", "Pause", icon = icon("pause")),
+    actionButton("mute", "Mute", icon = icon("times")),
+    actionButton("stop", "Stop", icon = icon("stop")),
     actionButton("save", "Save", icon = icon("save")),
     actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
     tags$br(),
@@ -63,7 +65,8 @@ server <- function(input, output, session) {
             annotations_df <- NULL
         }
 
-        wavesurfer(input$audio, waveColor = "#aa88ff", plugins = c("regions"), annotations = annotations_df)
+        wavesurfer(input$audio, plugins = c("regions"), annotations = annotations_df) %>%
+            wavesurfer::ws_set_wave_color(color = "#aa88ff")
 
     })
 
@@ -73,6 +76,14 @@ server <- function(input, output, session) {
 
     observeEvent(input$pause, {
         ws_pause("meu_ws")
+    })
+
+    observeEvent(input$mute, {
+        ws_toggle_mute("meu_ws")
+    })
+
+    observeEvent(input$stop, {
+        ws_stop("meu_ws")
     })
 
     observeEvent(input$save, {
@@ -98,7 +109,7 @@ server <- function(input, output, session) {
         suggested_annotations <- do.call(auto_detect_partial, params_do_auto_detec)
         suggested_annotations$sound.files <- wav_name()
         names(suggested_annotations) <- c("sound_id", "segmentation_id", "start", "end")
-        ws_addRegions("meu_ws", suggested_annotations)
+        ws_add_regions("meu_ws", suggested_annotations)
     })
 
     output$regions_class <- renderPrint({
