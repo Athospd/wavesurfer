@@ -21,6 +21,8 @@ ui <- fluidPage(
     actionButton("save", "Save", icon = icon("save")),
     actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
     tags$br(),
+    sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50),
+    tags$br(),
     verbatimTextOutput("regions_class"),
     verbatimTextOutput("regions")
 )
@@ -65,7 +67,7 @@ server <- function(input, output, session) {
             annotations_df <- NULL
         }
 
-        wavesurfer(input$audio, plugins = c("regions"), annotations = annotations_df) %>%
+        wavesurfer::wavesurfer(input$audio, plugins = c("regions"), annotations = annotations_df) %>%
             wavesurfer::ws_set_wave_color(color = "#aa88ff")
 
     })
@@ -80,6 +82,10 @@ server <- function(input, output, session) {
 
     observeEvent(input$mute, {
         ws_toggle_mute("meu_ws")
+    })
+
+    observe({
+        ws_zoom("meu_ws", input$zoom)
     })
 
     observeEvent(input$stop, {
@@ -113,7 +119,7 @@ server <- function(input, output, session) {
     })
 
     output$regions_class <- renderPrint({
-        class(input$meu_ws_regions)
+        reactiveValuesToList(input)
     })
 
     output$regions <- renderPrint({

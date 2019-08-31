@@ -5,7 +5,7 @@
 #' @import htmlwidgets
 #'
 #' @export
-wavesurfer <- function(audio,
+wavesurfer <- function(audio = NULL,
                        audioContext = NULL,
                        audioRate = 1,
                        audioScriptProcessor = NULL,

@@ -125,7 +125,31 @@ ws_set_playback_rate <- function(id, rate = NULL) {
 }
 
 #' @export
+ws_set_height <- function(id, height = NULL) {
+  method <- "ws_set_height"
+  callJS()
+}
+
+#' @export
 ws_zoom <- function(id, px_per_sec = NULL) {
   method <- "ws_zoom"
+  callJS()
+}
+
+#' @export
+ws_load <- function(id, url, peaks = NULL, preload = NULL, duration = NULL) {
+  method <- "ws_load"
+  callJS()
+}
+
+#' @export
+ws_seek_to <- function(id, progress) {
+  method <- "ws_seek_to"
+  callJS()
+}
+
+#' @export
+ws_seek_and_center <- function(id, progress) {
+  method <- "ws_seek_and_center"
   callJS()
 }

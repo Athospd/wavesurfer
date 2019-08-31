@@ -4,7 +4,7 @@
 \alias{wavesurfer}
 \title{<Add Title>}
 \usage{
-wavesurfer(audio, audioContext = NULL, audioRate = 1,
+wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
   audioScriptProcessor = NULL, autoCenter = TRUE,
   backend = "WebAudio", backgroundColor = NULL, barHeight = 1,
   barGap = NULL, barWidth = NULL, closeAudioContext = FALSE,
