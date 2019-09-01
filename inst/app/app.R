@@ -84,8 +84,7 @@ server <- function(input, output, session) {
             annotations = annotations_df,
             barWidth = 2
         ) %>%
-            wavesurfer::ws_set_wave_color(color = "#aa88ff") %>%
-            wavesurfer::ws_on("region-click", htmlwidgets::JS("function() {alert('sdfsf');}"))
+            wavesurfer::ws_set_wave_color(color = "#aa88ff")
 
     })
 

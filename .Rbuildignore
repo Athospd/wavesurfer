@@ -3,3 +3,4 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^data-raw$
+^inst/htmlwidgets/lib/wavesurfer.js-3.0.0/.*

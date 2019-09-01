@@ -112,14 +112,6 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_current_time", wsf.getCurrentTime());
             });
 
-            wsf.on('destroy', function () {
-
-            });
-
-            wsf.on('error', function (errorMessage) {
-
-            });
-
             wsf.on('finish', function () {
               Shiny.onInputChange(elementId + "_is_playing", wsf.isPlaying());
             });
@@ -161,20 +153,12 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_playback_rate", wsf.getPlaybackRate());
             });
 
-            wsf.on('scroll', function (ScrollEventObj) {
-
-            });
-
             wsf.on('seek', function (progress) {
               Shiny.onInputChange(elementId + "_progress", progress);
             });
 
             wsf.on('volume', function (newVolume) {
               Shiny.onInputChange(elementId + "_volume", newVolume);
-            });
-
-            wsf.on('waveform-ready', function () {
-
             });
 
             wsf.on('zoom', function (minPxPerSec) {
@@ -197,30 +181,6 @@ HTMLWidgets.widget({
 
             wsf.on("region-removed", function() {
               returnRegionsToInput();
-            });
-
-            wsf.on("region-play", function() {
-
-            });
-
-            wsf.on("region-in", function() {
-
-            });
-
-            wsf.on("region-out", function() {
-
-            });
-
-            wsf.on("region-mouseenter", function() {
-
-            });
-
-            wsf.on("region-mouseleave", function() {
-
-            });
-
-            wsf.on("region-click", function() {
-
             });
           }
           // listeners with no shiny dependency
@@ -263,7 +223,7 @@ HTMLWidgets.widget({
         wsf.params.waveColor = x.settings.waveColor;
         wsf.params.xhr = x.settings.xhr;
 
-
+        //add regions passed by the user
         var annotations = HTMLWidgets.dataframeToD3(x.annotations);
         wsf.clearRegions();
         if (typeof annotations !== 'undefined') {

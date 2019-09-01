@@ -1,3 +1,0 @@
-Shiny.addCustomMessageHandler("ws_{method}", function(wavesurferId) {{
-  HTMLWidgets.find("#" + wavesurferId).w.{method}();
-}});

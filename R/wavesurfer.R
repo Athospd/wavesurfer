@@ -1,6 +1,51 @@
-#' <Add Title>
+#' Create a soundwave visualization
 #'
-#' <Add Description>
+#' \code{wavesurfer} is an interactive soundwave player and visualizer with rich set of plugins and tools.
+#' It works well with pipe (%>%) and can be used in Shiny, R Markdown and RStudio Viewer. It is an interface
+#' of \href{https://wavesurfer-js.org}{'wavesurfer.js'} JavaScript library.
+#'
+#' @param audio todo.
+#' @param audioContext todo.
+#' @param audioRate todo.
+#' @param audioScriptProcessor todo.
+#' @param autoCenter todo.
+#' @param backend todo.
+#' @param backgroundColor todo.
+#' @param barHeight todo.
+#' @param barGap todo.
+#' @param barWidth todo.
+#' @param closeAudioContext todo.
+#' @param container todo.
+#' @param cursorColor todo.
+#' @param cursorWidth todo.
+#' @param duration todo.
+#' @param fillParent todo.
+#' @param forceDecode todo.
+#' @param hideScrollbar todo.
+#' @param interact todo.
+#' @param loopSelection todo.
+#' @param maxCanvasWidth todo.
+#' @param mediaControls todo.
+#' @param mediaType todo.
+#' @param minPxPerSec todo.
+#' @param normalize todo.
+#' @param partialRender todo.
+#' @param pixelRatio todo.
+#' @param plugins todo.
+#' @param progressColor todo.
+#' @param removeMediaElementOnDestroy todo.
+#' @param renderer todo.
+#' @param responsive todo.
+#' @param rtl todo.
+#' @param scrollParent todo.
+#' @param skipLength todo.
+#' @param splitChannels todo.
+#' @param waveColor todo.
+#' @param xhr todo.
+#' @param width todo.
+#' @param height todo.
+#' @param elementId todo.
+#' @param annotations todo.
 #'
 #' @import htmlwidgets
 #'

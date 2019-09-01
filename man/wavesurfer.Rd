@@ -2,7 +2,7 @@
 % Please edit documentation in R/wavesurfer.R
 \name{wavesurfer}
 \alias{wavesurfer}
-\title{<Add Title>}
+\title{Create a soundwave visualization}
 \usage{
 wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
   audioScriptProcessor = NULL, autoCenter = TRUE,
@@ -20,6 +20,93 @@ wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
   xhr = list(), width = NULL, height = NULL, elementId = NULL,
   annotations = NULL)
 }
+\arguments{
+\item{audio}{todo.}
+
+\item{audioContext}{todo.}
+
+\item{audioRate}{todo.}
+
+\item{audioScriptProcessor}{todo.}
+
+\item{autoCenter}{todo.}
+
+\item{backend}{todo.}
+
+\item{backgroundColor}{todo.}
+
+\item{barHeight}{todo.}
+
+\item{barGap}{todo.}
+
+\item{barWidth}{todo.}
+
+\item{closeAudioContext}{todo.}
+
+\item{container}{todo.}
+
+\item{cursorColor}{todo.}
+
+\item{cursorWidth}{todo.}
+
+\item{duration}{todo.}
+
+\item{fillParent}{todo.}
+
+\item{forceDecode}{todo.}
+
+\item{hideScrollbar}{todo.}
+
+\item{interact}{todo.}
+
+\item{loopSelection}{todo.}
+
+\item{maxCanvasWidth}{todo.}
+
+\item{mediaControls}{todo.}
+
+\item{mediaType}{todo.}
+
+\item{minPxPerSec}{todo.}
+
+\item{normalize}{todo.}
+
+\item{partialRender}{todo.}
+
+\item{pixelRatio}{todo.}
+
+\item{plugins}{todo.}
+
+\item{progressColor}{todo.}
+
+\item{removeMediaElementOnDestroy}{todo.}
+
+\item{renderer}{todo.}
+
+\item{responsive}{todo.}
+
+\item{rtl}{todo.}
+
+\item{scrollParent}{todo.}
+
+\item{skipLength}{todo.}
+
+\item{splitChannels}{todo.}
+
+\item{waveColor}{todo.}
+
+\item{xhr}{todo.}
+
+\item{width}{todo.}
+
+\item{height}{todo.}
+
+\item{elementId}{todo.}
+
+\item{annotations}{todo.}
+}
 \description{
-<Add Description>
+\code{wavesurfer} is an interactive soundwave player and visualizer with rich set of plugins and tools.
+It works well with pipe (%>%) and can be used in Shiny, R Markdown and RStudio Viewer. It is an interface
+of \href{https://wavesurfer-js.org}{'wavesurfer.js'} JavaScript library.
 }

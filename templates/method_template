@@ -1,5 +1,0 @@
-#' @export
-ws_{method} <- function(wavesurferId, session = shiny::getDefaultReactiveDomain()) {{
-  is_called_inside_shiny(session, "ws_{method}")
-  session$sendCustomMessage("ws_{method}", wavesurferId)
-}}

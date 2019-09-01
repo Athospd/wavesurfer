@@ -1,16 +1,26 @@
 Package: wavesurfer
-Title: R interface to wavesurfer.js
-Version: 0.0.0.9000
-Authors@R: 
+Title: Create Interactive Sound Player and Visualizer in R
+Version: 0.1.0
+Authors@R: c(
     person(given = "Athos",
            family = "Damiani",
            role = c("aut", "cre"),
            email = "athos.damiani@curso-r.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: R interface to wavesurfer.js
-License: CC0
+           comment = "R interface"),
+    person(family = "katspaugh", 
+           role = c("aut", "cph"),
+           comment = "wavesurfer.js library, https://wavesurfer-js.org/, https://github.com/katspaugh/")
+    )
+Description: R interface to wavesurfer.js, a powerful sound visualizer 
+    and annotator. It is a htmlwidget compatible with Shiny, R Markdown and 
+    RStudio Viewer and work well with pipe (%>%). 
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/athospd/wavesurfer/issues
+BugReports: https://github.com/athospd/wavesurfer/issues
+Depends:
+    R (>= 3.5.0)
 Suggests: 
     testthat,
     knitr,
@@ -19,5 +29,8 @@ RoxygenNote: 6.1.1
 Imports: 
     magrittr,
     htmlwidgets,
-    htmltools
+    htmltools,
+    jsonlite,
+    methods,
+    shiny
 VignetteBuilder: knitr
