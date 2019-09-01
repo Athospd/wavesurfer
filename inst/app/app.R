@@ -13,6 +13,16 @@ ui <- fluidPage(
 
     uiOutput("especies"),
     uiOutput("arquivo_wav"),
+
+    actionButton("minimap", "Minimap", icon = icon("map")),
+    actionButton("spectrogram", "spectrogram", icon = icon("chart")),
+    actionButton("microphone", "Microphone", icon = icon("mic")),
+    actionButton("regions", "Regions", icon = icon("square")),
+    actionButton("cursor", "Cursor", icon = icon("pointer")),
+    actionButton("elan", "Elan", icon = icon("chat")),
+    actionButton("timeline", "Timeline", icon = icon("time")),
+    tags$br(),
+
     wavesurferOutput("meu_ws", height = "100%"),
     actionButton("play", "Play", icon = icon("play")),
     actionButton("pause", "Pause", icon = icon("pause")),
@@ -21,6 +31,7 @@ ui <- fluidPage(
     actionButton("save", "Save", icon = icon("save")),
     actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
     tags$br(),
+
     sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50),
     tags$br(),
     verbatimTextOutput("regions_class"),
@@ -67,8 +78,14 @@ server <- function(input, output, session) {
             annotations_df <- NULL
         }
 
-        wavesurfer::wavesurfer(input$audio, plugins = c("regions"), annotations = annotations_df) %>%
-            wavesurfer::ws_set_wave_color(color = "#aa88ff")
+        wavesurfer::wavesurfer(
+            input$audio,
+            plugins = c("regions"),
+            annotations = annotations_df,
+            barWidth = 2
+        ) %>%
+            wavesurfer::ws_set_wave_color(color = "#aa88ff") %>%
+            wavesurfer::ws_on("region-click", htmlwidgets::JS("function() {alert('sdfsf');}"))
 
     })
 
@@ -91,6 +108,35 @@ server <- function(input, output, session) {
     observeEvent(input$stop, {
         ws_stop("meu_ws")
     })
+
+    observeEvent(input$minimap, {
+        ws_minimap("meu_ws")
+    })
+
+    observeEvent(input$spectrogram, {
+        ws_spectrogram("meu_ws")
+    })
+
+    observeEvent(input$timeline, {
+        ws_timeline("meu_ws")
+    })
+
+    observeEvent(input$cursor, {
+        ws_cursor("meu_ws")
+    })
+
+    observeEvent(input$elan, {
+        ws_elan("meu_ws")
+    })
+
+    observeEvent(input$regions, {
+        ws_regions("meu_ws")
+    })
+
+    observeEvent(input$microphone, {
+        ws_minimap("meu_ws")
+    })
+
 
     observeEvent(input$save, {
         req(!is.null(wav_name()))

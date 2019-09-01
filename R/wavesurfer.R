@@ -137,6 +137,11 @@ renderWavesurfer <- function(expr, env = parent.frame(), quoted = FALSE) {
 }
 
 wavesurfer_html <- function(id, style, class, ...) {
-  htmltools::tags$div(id = id, style = style, class = class)
+  htmltools::tagList(
+    htmltools::tags$div(id = id, style = style, class = class),
+    htmltools::tags$div(id = paste0(id, "-timeline"), style = style, class = class),
+    htmltools::tags$div(id = paste0(id, "-spectrogram"), style = style, class = class),
+    htmltools::tags$div(id = paste0(id, "-elan"), style = style, class = class)
+  )
 }
 

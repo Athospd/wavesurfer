@@ -5,6 +5,12 @@ ws_add_regions <- function(id, annotations) {
 }
 
 #' @export
+ws_clear_regions <- function(id) {
+  method <- "ws_clear_regions"
+  callJS()
+}
+
+#' @export
 ws_play <- function(id, start = NULL, end = NULL) {
   method <- "ws_play"
   callJS()
@@ -151,5 +157,65 @@ ws_seek_to <- function(id, progress) {
 #' @export
 ws_seek_and_center <- function(id, progress) {
   method <- "ws_seek_and_center"
+  callJS()
+}
+
+#' @export
+ws_minimap <- function(id, parameters = NULL) {
+  method <- "ws_minimap"
+  callJS()
+}
+
+#' @export
+ws_regions <- function(id, parameters = NULL) {
+  method <- "ws_regions"
+  callJS()
+}
+
+#' @export
+ws_elan <- function(id, parameters = NULL) {
+  method <- "ws_elan"
+  callJS()
+}
+
+#' @export
+ws_timeline <- function(id, parameters = NULL) {
+  method <- "ws_timeline"
+  callJS()
+}
+
+#' @export
+ws_microphone <- function(id, parameters = NULL) {
+  method <- "ws_microphone"
+  callJS()
+}
+
+#' @export
+ws_spectrogram <- function(id, parameters = NULL) {
+  method <- "ws_spectrogram"
+  callJS()
+}
+
+#' @export
+ws_cursor <- function(id, parameters = NULL) {
+  method <- "ws_cursor"
+  callJS()
+}
+
+#' @export
+ws_on <- function(id, event, callback = htmlwidgets::JS("function() {}"), replace = FALSE) {
+  method <- "ws_on"
+  callJS()
+}
+
+#' @export
+ws_un <- function(id, event) {
+  method <- "ws_un"
+  callJS()
+}
+
+#' @export
+ws_un_all <- function(id, event) {
+  method <- "ws_un_all"
   callJS()
 }

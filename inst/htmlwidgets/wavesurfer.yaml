@@ -12,13 +12,12 @@ dependencies:
       - peakcache.js
       - webaudio.js
       - plugin/wavesurfer.regions.min.js
-      - plugin/cursor.js
-      - plugin/elan.js
-      - plugin/mediasession.js
-      - plugin/microphone.js
-      - plugin/minimap.js
-      - plugin/wavesurfer.spectrogram.js
-      - plugin/timeline.js
+      - plugin/wavesurfer.microphone.min.js
+      - plugin/wavesurfer.spectrogram.min.js
+      - plugin/wavesurfer.minimap.min.js
+      - plugin/wavesurfer.cursor.min.js
+      - plugin/wavesurfer.timeline.min.js
+      - plugin/wavesurfer.elan.min.js
       - util/ajax.js
       - util/extend.js
       - util/fetch.js

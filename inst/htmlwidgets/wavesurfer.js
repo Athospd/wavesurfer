@@ -11,16 +11,62 @@ HTMLWidgets.widget({
     var initialized = false;
     var elementId = el.id;
     var container =  document.getElementById(elementId);
+
+    //plugins pre-defined options
+    var pluginOptions = {
+        minimap: {
+            waveColor: '#777',
+            progressColor: '#222',
+            height: 30,
+            deferInit: true
+        },
+        microphone: {
+            deferInit: true
+        },
+        timeline: {
+            container: '#'+elementId+'-timeline',
+            deferInit: true
+        },
+        spectrogram: {
+            container: '#'+elementId+'-spectrogram',
+            deferInit: true
+        },
+        cursor: {
+            showTime: true,
+            opacity: 1,
+            customShowTimeStyle: {
+                'background-color': '#000',
+                color: '#fff',
+                'font-size': '10px'
+            },
+            deferInit: true
+        },
+        regions: {
+            dragSelection: true,
+            deferInit: true
+        },
+        elan: {
+            url: '../elan/transcripts/001z.xml',
+            container: '#'+elementId+'-elan',
+            tiers: {
+                Text: true,
+                Comments: true
+            },
+            deferInit: true
+        }
+    };
+
     var wsf = WaveSurfer.create({
       container: container,
       plugins: [
-          WaveSurfer.regions.create({
-              dragSelection: {
-                  slop: 5
-              }
-          })
+          WaveSurfer.regions.create(pluginOptions.regions),
+          WaveSurfer.minimap.create(pluginOptions.minimap),
+          WaveSurfer.spectrogram.create(pluginOptions.spectrogram),
+          WaveSurfer.microphone.create(pluginOptions.microphone),
+          WaveSurfer.cursor.create(pluginOptions.cursor),
+          WaveSurfer.timeline.create(pluginOptions.timeline),
+          WaveSurfer.elan.create(pluginOptions.elan)
       ]
-
     });
 
     return {
@@ -111,7 +157,7 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_mute", wsf.getMute());
               Shiny.onInputChange(elementId + "_duration", wsf.getDuration());
               Shiny.onInputChange(elementId + "_current_time", wsf.getCurrentTime());
-              Shiny.onInputChange(elementId + "_ready", wsf.getReady());
+              //Shiny.onInputChange(elementId + "_ready", wsf.getReady());
               Shiny.onInputChange(elementId + "_playback_rate", wsf.getPlaybackRate());
             });
 
@@ -135,7 +181,8 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_zoom", minPxPerSec);
             });
 
-            //regions plugin events
+
+            //regions plugin events ----------------------------------------------
             wsf.on("region-created", function() {
               returnRegionsToInput();
             });
@@ -150,6 +197,30 @@ HTMLWidgets.widget({
 
             wsf.on("region-removed", function() {
               returnRegionsToInput();
+            });
+
+            wsf.on("region-play", function() {
+
+            });
+
+            wsf.on("region-in", function() {
+
+            });
+
+            wsf.on("region-out", function() {
+
+            });
+
+            wsf.on("region-mouseenter", function() {
+
+            });
+
+            wsf.on("region-mouseleave", function() {
+
+            });
+
+            wsf.on("region-click", function() {
+
             });
           }
           // listeners with no shiny dependency
@@ -193,11 +264,6 @@ HTMLWidgets.widget({
         wsf.params.xhr = x.settings.xhr;
 
 
-
-
-
-
-
         var annotations = HTMLWidgets.dataframeToD3(x.annotations);
         wsf.clearRegions();
         if (typeof annotations !== 'undefined') {
@@ -221,6 +287,10 @@ HTMLWidgets.widget({
       ws_add_regions: function(message) {
         var annotations = HTMLWidgets.dataframeToD3(message.annotations);
         annotations.forEach(function(obj) {wsf.addRegion(obj)});
+      },
+
+      ws_clear_regions: function() {
+        wsf.ws_clear_regions();
       },
 
       ws_play: function(message) {
@@ -317,6 +387,53 @@ HTMLWidgets.widget({
 
       ws_seek_and_center: function(message) {
         wsf.seekAndCenter(message.progress);
+      },
+
+      ws_minimap: function(message) {
+        wsf.initPlugin('minimap');
+      },
+
+      ws_microphone: function(message) {
+        wsf.initPlugin('microphone');
+      },
+
+      ws_regions: function(message) {
+        wsf.initPlugin('regions');
+      },
+
+      ws_spectrogram: function(message) {
+        wsf.initPlugin('spectrogram');
+      },
+
+      ws_cursor: function(message) {
+        wsf.initPlugin('cursor');
+      },
+
+      ws_elan: function(message) {
+        wsf.initPlugin('elan');
+      },
+
+      ws_timeline: function(message) {
+        wsf.initPlugin('timeline');
+      },
+
+      ws_init_plugin: function(message) {
+        wsf.initPlugin(message.plugin);
+      },
+
+      ws_on: function(message) {
+        if(message.replace) {
+          wsf.un(message.event);
+        }
+        wsf.on(message.event, message.callback);
+      },
+
+      ws_un: function(message) {
+        wsf.un(message.event);
+      },
+
+      ws_un_all: function(message) {
+        wsf.unAll();
       }
     };
   }
@@ -324,14 +441,17 @@ HTMLWidgets.widget({
 
 
 if (HTMLWidgets.shinyMode) {
-  var fxns = ['ws_add_regions', 'ws_play', 'ws_pause',
+  var fxns = ['ws_add_regions', 'ws_clear_regions', 'ws_play', 'ws_pause',
               'ws_play_pause', 'ws_destroy', 'ws_cancel_ajax',
               'ws_set_mute', 'ws_stop', 'ws_toggle_mute',
               'ws_toggle_interaction', 'ws_toggle_scroll',
               'ws_skip', 'ws_skip_backward', 'ws_skip_forward',
               'ws_set_wave_color', 'ws_set_progress_color', 'ws_set_volume',
               'ws_set_playback_rate', 'ws_set_background_color', 'ws_zoom',
-              'ws_set_height', 'ws_load', 'ws_seek_to', 'ws_seek_and_center'];
+              'ws_set_height', 'ws_load', 'ws_seek_to', 'ws_seek_and_center',
+              'ws_minimap', 'ws_init_plugin', 'ws_microphone', 'ws_regions',
+              'ws_spectrogram', 'ws_cursor', 'ws_elan', 'ws_timeline',
+              'ws_on', 'ws_un', 'ws_un_all'];
 
   var addShinyHandler = function(fxn) {
     return function() {
