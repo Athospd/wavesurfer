@@ -284,6 +284,7 @@ HTMLWidgets.widget({
         wsf.params.xhr = x.settings.xhr;
         wsf.audioUrl = x.audio;
         wsf.initialAnnotations = x.annotations;
+        wsf.insertAnnotations = insertAnnotations;
 
         //add regions passed by the user
         wsf.clearRegions();
@@ -331,7 +332,7 @@ HTMLWidgets.widget({
       },
 
       ws_add_regions: function(message) {
-        insertAnnotations(message.annotations);
+        wsf.insertAnnotations(message.annotations);
       },
 
       ws_clear_regions: function() {

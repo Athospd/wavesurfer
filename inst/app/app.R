@@ -77,16 +77,13 @@ server <- function(input, output, session) {
         } else {
             annotations_df <- NULL
         }
-        annotations_df <- data.frame(
-            start = 3,
-            end = 4,
-            label = "teste"
-        )
         wavesurfer(
             input$audio,
+            annotations = annotations_df,
             barWidth = 2
         ) %>%
-            ws_set_wave_color(color = "#aa88ff")
+            ws_set_wave_color(color = "#aa88ff") %>%
+            ws_region_labeller()
     })
 
     observeEvent(input$play, {
