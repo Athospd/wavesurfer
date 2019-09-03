@@ -237,9 +237,16 @@ HTMLWidgets.widget({
               region_labeller_input.focus();
 
               //retrieve current region label to the region labeller input
-              var lbl = region.attributes.label.toString();
-              region_labeller_input.addOption({value: lbl, label: lbl});
-              region_labeller_input.addItem(lbl, 1);
+              if(region.attributes.label) {
+                lbl = region.attributes.label.toString();
+                region_labeller_input.addOption({value: lbl, label: lbl});
+                region_labeller_input.addItem(lbl, 1);
+                region_labeller_input.setValue(lbl);
+              } else {
+                region_labeller_input.setValue(null);
+              }
+
+
             });
           }
           // listeners with no shiny dependency
