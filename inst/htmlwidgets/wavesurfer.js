@@ -99,12 +99,23 @@ HTMLWidgets.widget({
 
         function get_region_data(region) {
           return {
-            sound_id: region.attributes.sound_id ? region.attributes.sound_id.toString() : "",
-            segmentation_id: region.id,
+            sound_id: region.attributes.sound_id ? region.attributes.sound_id.toString() : x.audio,
+            segment_id: region.id,
             start: region.start,
             end: region.end,
             label: region.attributes.label ? region.attributes.label.toString() : ""
           };
+        }
+
+
+        // insert annotations in batch
+        function insertAnnotations(annotations) {
+          annotations = HTMLWidgets.dataframeToD3(annotations);
+          if (typeof annotations !== 'undefined') {
+            annotations.forEach(function(obj) {
+              wsf.addRegion(obj);
+            });
+          }
         }
 
         if (!initialized) {
@@ -177,9 +188,7 @@ HTMLWidgets.widget({
 
             //regions plugin events ----------------------------------------------
             wsf.on("region-created", function(region) {
-
               region.element.click();
-              Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
             });
 
             wsf.on("region-updated", function(region, e) {
@@ -204,12 +213,8 @@ HTMLWidgets.widget({
               });
               region.element.classList.add('region-selected');
 
-              //input update
-              //Shiny.onInputChange(elementId + "_selected_region:regionsDF", JSON.stringify(get_region_data(region)));
-
               //region labeller input (selectize)
               var region_labeller_input = $('#'+elementId+'_region_labeller')[0].selectize;
-
 
               //update onchange event
               region_labeller_input.off("type");
@@ -235,8 +240,6 @@ HTMLWidgets.widget({
               var lbl = region.attributes.label.toString();
               region_labeller_input.addOption({value: lbl, label: lbl});
               region_labeller_input.addItem(lbl, 1);
-
-
             });
           }
           // listeners with no shiny dependency
@@ -279,13 +282,12 @@ HTMLWidgets.widget({
         wsf.params.splitChannels = x.settings.splitChannels;
         wsf.params.waveColor = x.settings.waveColor;
         wsf.params.xhr = x.settings.xhr;
+        wsf.audioUrl = x.audio;
+        wsf.initialAnnotations = x.annotations;
 
         //add regions passed by the user
-        var annotations = HTMLWidgets.dataframeToD3(x.annotations);
         wsf.clearRegions();
-        if (typeof annotations !== 'undefined') {
-          annotations.forEach(function(obj) {wsf.addRegion(obj)});
-        }
+        insertAnnotations(x.annotations);
 
         //enable region labeller?
         if(x.settings.region_labeller) {
@@ -319,11 +321,17 @@ HTMLWidgets.widget({
         // no need
       },
 
+      ws_regions: function() {
+        console.log(wsf.audioUrl);
+        if (!wsf.regions.wavesurfer.isReady) {
+          setTimeout(() => this.ws_regions(), 1000);
+          return;
+        }
+        this.initInactivePlugin('regions');
+      },
+
       ws_add_regions: function(message) {
-        var annotations = HTMLWidgets.dataframeToD3(message.annotations);
-        annotations.forEach(function(obj) {
-          wsf.addRegion(obj);
-        });
+        insertAnnotations(message.annotations);
       },
 
       ws_clear_regions: function() {
@@ -436,10 +444,6 @@ HTMLWidgets.widget({
 
       ws_microphone: function() {
         this.initInactivePlugin('microphone');
-      },
-
-      ws_regions: function() {
-        this.initInactivePlugin('regions');
       },
 
       ws_spectrogram: function() {

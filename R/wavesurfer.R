@@ -135,6 +135,11 @@ wavesurfer <- function(audio = NULL,
     region_labeller = region_labeller
   )
 
+  # mutating the format of the list
+  if(!is.null(annotations)){
+    annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
+  }
+
   # forward options using x
   x = list(
     audio = audio,
