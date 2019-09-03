@@ -6,6 +6,7 @@
 #'
 #' @export
 ws_add_regions <- function(id, annotations) {
+  annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
   method <- "ws_add_regions"
   callJS()
 }
@@ -423,5 +424,35 @@ ws_un <- function(id, event) {
 #' @export
 ws_un_all <- function(id) {
   method <- "ws_un_all"
+  callJS()
+}
+
+#' ws_microphone_start
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_microphone_start <- function(id) {
+  method <- "ws_microphone_start"
+  callJS()
+}
+
+#' ws_microphone_stop
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_microphone_stop <- function(id) {
+  method <- "ws_microphone_stop"
+  callJS()
+}
+
+#' ws_region_labeller
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_region_labeller <- function(id, enable = TRUE) {
+  method <- "ws_region_labeller"
   callJS()
 }

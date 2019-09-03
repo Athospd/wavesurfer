@@ -32,5 +32,7 @@ Imports:
     htmltools,
     jsonlite,
     methods,
-    shiny
+    shiny,
+    tidyr,
+    tibble
 VignetteBuilder: knitr

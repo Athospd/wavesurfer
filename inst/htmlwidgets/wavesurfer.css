@@ -1,0 +1,9 @@
+region.wavesurfer-region:before {
+    content: attr(data-region-label);
+}
+
+region.wavesurfer-region:hover, .region-selected{
+  border: 1px solid rgb(86, 180, 239);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset, 0 0 8px rgba(82, 168, 236, 0.6);
+}
+

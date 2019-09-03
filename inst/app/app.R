@@ -31,11 +31,11 @@ ui <- fluidPage(
     actionButton("save", "Save", icon = icon("save")),
     actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
     tags$br(),
-
     sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50),
     tags$br(),
-    verbatimTextOutput("regions_class"),
-    verbatimTextOutput("regions")
+    verbatimTextOutput("regions"),
+    verbatimTextOutput("current_region"),
+    verbatimTextOutput("regions_class")
 )
 
 # Define server logic required to draw a histogram
@@ -73,19 +73,18 @@ server <- function(input, output, session) {
         annotations_path <- paste0(pasta_anotacoes, annotations_path)
 
         if(file.exists(annotations_path)) {
-            annotations_df <- readr::read_rds(annotations_path)
+            annotations_df <- readr::read_rds(annotations_path) %>% dplyr::mutate(label = character(0))
         } else {
             annotations_df <- NULL
         }
 
-        wavesurfer::wavesurfer(
+        wavesurfer(
             input$audio,
-            plugins = c("regions"),
             annotations = annotations_df,
             barWidth = 2
         ) %>%
-            wavesurfer::ws_set_wave_color(color = "#aa88ff")
-
+            ws_set_wave_color(color = "#aa88ff") %>%
+            ws_region_labeller()
     })
 
     observeEvent(input$play, {
@@ -159,7 +158,11 @@ server <- function(input, output, session) {
         ## segmentacoes encontradas
         suggested_annotations <- do.call(auto_detect_partial, params_do_auto_detec)
         suggested_annotations$sound.files <- wav_name()
-        names(suggested_annotations) <- c("sound_id", "segmentation_id", "start", "end")
+        if(is.null(suggested_annotations$label)) {
+            suggested_annotations$label <- "(unlabeled)"
+        }
+        suggested_annotations <- suggested_annotations %>% dplyr::mutate(label = sample(letters, size = length(label), replace = TRUE))
+        names(suggested_annotations) <- c("sound_id", "segmentation_id", "start", "end", "label")
         ws_add_regions("meu_ws", suggested_annotations)
     })
 
@@ -167,6 +170,9 @@ server <- function(input, output, session) {
         reactiveValuesToList(input)
     })
 
+    output$current_region <- renderPrint({
+        input$meu_ws_selected_region
+    })
     output$regions <- renderPrint({
         input$meu_ws_regions
     })

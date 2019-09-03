@@ -8,9 +8,11 @@ HTMLWidgets.widget({
 
   factory: function(el, width, height) {
 
+
     var initialized = false;
     var elementId = el.id;
     var container =  document.getElementById(elementId);
+
 
     //plugins pre-defined options
     var pluginOptions = {
@@ -29,6 +31,7 @@ HTMLWidgets.widget({
         },
         spectrogram: {
             container: '#'+elementId+'-spectrogram',
+            labels: true,
             deferInit: true
         },
         cursor: {
@@ -55,7 +58,6 @@ HTMLWidgets.widget({
             deferInit: true
         }
     };
-
     var wsf = WaveSurfer.create({
       container: container,
       plugins: [
@@ -81,21 +83,28 @@ HTMLWidgets.widget({
           wsf.load(x.audio);
         }
 
-        //return regions to shiny input$<id>_regions
-        function returnRegionsToInput(r, e) {
-            var current_regions = wsf.regions.list;
-            var regions_data = JSON.stringify(
+        //get regions data to pass to R
+        function get_regions_data(regionsList, e) {
+            var current_regions = regionsList;
+            if(Object.keys(current_regions).length) {
+              var regions_data = JSON.stringify(
               Object.keys(current_regions).map(function (id) {
                   var region = current_regions[id];
-                  return {
-                    sound_id: region.sound_id,
-                    segmentation_id: id,
-                    start: region.start,
-                    end: region.end
-                  };
+                  return get_region_data(region);
               })
             );
-            Shiny.onInputChange(elementId + "_regions:regionsDF", regions_data);
+            return(regions_data);
+          }
+        }
+
+        function get_region_data(region) {
+          return {
+            sound_id: region.attributes.sound_id ? region.attributes.sound_id.toString() : "",
+            segmentation_id: region.id,
+            start: region.start,
+            end: region.end,
+            label: region.attributes.label ? region.attributes.label.toString() : ""
+          };
         }
 
         if (!initialized) {
@@ -108,12 +117,9 @@ HTMLWidgets.widget({
           // set listeners to events and pass data back to Shiny
           if (HTMLWidgets.shinyMode) {
 
-            wsf.on('audioprocess', function () {
-              Shiny.onInputChange(elementId + "_current_time", wsf.getCurrentTime());
-            });
-
             wsf.on('finish', function () {
               Shiny.onInputChange(elementId + "_is_playing", wsf.isPlaying());
+              Shiny.onInputChange(elementId + "_current_time", wsf.getCurrentTime());
             });
 
             wsf.on('interaction', function () {
@@ -139,7 +145,6 @@ HTMLWidgets.widget({
 
             wsf.on('ready', function () {
 
-              returnRegionsToInput();
               Shiny.onInputChange(elementId + "_wave_color", wsf.getWaveColor());
               Shiny.onInputChange(elementId + "_progress_color", wsf.getProgressColor());
               Shiny.onInputChange(elementId + "_cursor_color", wsf.getCursorColor());
@@ -149,8 +154,12 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_mute", wsf.getMute());
               Shiny.onInputChange(elementId + "_duration", wsf.getDuration());
               Shiny.onInputChange(elementId + "_current_time", wsf.getCurrentTime());
-              //Shiny.onInputChange(elementId + "_ready", wsf.getReady());
               Shiny.onInputChange(elementId + "_playback_rate", wsf.getPlaybackRate());
+
+              if(wsf.getActivePlugins().regions) {
+                Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
+              }
+
             });
 
             wsf.on('seek', function (progress) {
@@ -167,23 +176,71 @@ HTMLWidgets.widget({
 
 
             //regions plugin events ----------------------------------------------
-            wsf.on("region-created", function() {
-              returnRegionsToInput();
+            wsf.on("region-created", function(region) {
+
+              region.element.click();
+              Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
             });
 
-            wsf.on("region-updated", function() {
-              returnRegionsToInput();
+            wsf.on("region-updated", function(region, e) {
+              Shiny.onInputChange(elementId + "_selected_region:regionsDF", JSON.stringify(get_region_data(region)));
+              Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
             });
 
-            wsf.on("region-update-end", function() {
-              returnRegionsToInput();
+            wsf.on("region-update-end", function(region) {
+              region.element.click();
             });
 
-            wsf.on("region-removed", function() {
-              returnRegionsToInput();
+            wsf.on("region-removed", function(region) {
+              Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
+              Shiny.onInputChange(elementId + "_selected_region:regionsDF", "{}");
+            });
+
+            wsf.on("region-click", function(region) {
+              //border highlights
+              var regions_list = wsf.regions.list;
+              Object.keys(regions_list).map(function(id) {
+                regions_list[id].element.classList.remove('region-selected');
+              });
+              region.element.classList.add('region-selected');
+
+              //input update
+              //Shiny.onInputChange(elementId + "_selected_region:regionsDF", JSON.stringify(get_region_data(region)));
+
+              //region labeller input (selectize)
+              var region_labeller_input = $('#'+elementId+'_region_labeller')[0].selectize;
+
+
+              //update onchange event
+              region_labeller_input.off("type");
+              region_labeller_input.on("type", function(value) {
+                region.attributes.label = value;
+                region.update(0);
+              });
+              region_labeller_input.off("change");
+              region_labeller_input.on("change", function(value) {
+                region.attributes.label = value;
+                region.update(0);
+              });
+              region_labeller_input.off("blur");
+              region_labeller_input.on("blur", function() {
+                region.attributes.label = region_labeller_input.getValue();
+                region.update(0);
+              });
+
+              //focus on region labeller input
+              region_labeller_input.focus();
+
+              //retrieve current region label to the region labeller input
+              var lbl = region.attributes.label.toString();
+              region_labeller_input.addOption({value: lbl, label: lbl});
+              region_labeller_input.addItem(lbl, 1);
+
+
             });
           }
           // listeners with no shiny dependency
+
           wsf.on("region-dblclick", function(region, e) {
             region.remove();
           });
@@ -230,6 +287,14 @@ HTMLWidgets.widget({
           annotations.forEach(function(obj) {wsf.addRegion(obj)});
         }
 
+        //enable region labeller?
+        if(x.settings.region_labeller) {
+          region_labeller_display = 'block';
+        } else {
+          region_labeller_display = 'none';
+        }
+        $('#'+elementId+'_region_labeller').closest('.form-group')[0].style.display = region_labeller_display;
+
         //apply api queue
         var numApiCalls = x.api.length;
         for (var i = 0; i < numApiCalls; i++) {
@@ -242,15 +307,27 @@ HTMLWidgets.widget({
 
       },
 
-      w: wsf,
+      wsf: wsf,
+
+      initInactivePlugin: function (plugin) {
+        if(!wsf.getActivePlugins()[plugin]) {
+          wsf.initPlugin(plugin);
+        }
+      },
+
+      resize : function(width, height) {
+        // no need
+      },
 
       ws_add_regions: function(message) {
         var annotations = HTMLWidgets.dataframeToD3(message.annotations);
-        annotations.forEach(function(obj) {wsf.addRegion(obj)});
+        annotations.forEach(function(obj) {
+          wsf.addRegion(obj);
+        });
       },
 
       ws_clear_regions: function() {
-        wsf.ws_clear_regions();
+        wsf.clearRegions();
       },
 
       ws_play: function(message) {
@@ -349,36 +426,36 @@ HTMLWidgets.widget({
         wsf.seekAndCenter(message.progress);
       },
 
-      ws_minimap: function(message) {
-        wsf.initPlugin('minimap');
-      },
-
-      ws_microphone: function(message) {
-        wsf.initPlugin('microphone');
-      },
-
-      ws_regions: function(message) {
-        wsf.initPlugin('regions');
-      },
-
-      ws_spectrogram: function(message) {
-        wsf.initPlugin('spectrogram');
-      },
-
-      ws_cursor: function(message) {
-        wsf.initPlugin('cursor');
-      },
-
-      ws_elan: function(message) {
-        wsf.initPlugin('elan');
-      },
-
-      ws_timeline: function(message) {
-        wsf.initPlugin('timeline');
-      },
-
       ws_init_plugin: function(message) {
-        wsf.initPlugin(message.plugin);
+        this.initInactivePlugin(message.plugin);
+      },
+
+      ws_minimap: function() {
+        this.initInactivePlugin('minimap');
+      },
+
+      ws_microphone: function() {
+        this.initInactivePlugin('microphone');
+      },
+
+      ws_regions: function() {
+        this.initInactivePlugin('regions');
+      },
+
+      ws_spectrogram: function() {
+        this.initInactivePlugin('spectrogram');
+      },
+
+      ws_cursor: function() {
+        this.initInactivePlugin('cursor');
+      },
+
+      ws_elan: function() {
+        this.initInactivePlugin('elan');
+      },
+
+      ws_timeline: function() {
+        this.initInactivePlugin('timeline');
       },
 
       ws_on: function(message) {
@@ -394,6 +471,27 @@ HTMLWidgets.widget({
 
       ws_un_all: function(message) {
         wsf.unAll();
+      },
+
+      ws_microphone_stop: function(message) {
+        if (wsf.microphone.active) {
+          wsf.microphone.stop();
+        }
+      },
+
+      ws_microphone_start: function(message) {
+        if (wsf.microphone.active) {
+          wsf.microphone.start();
+        }
+      },
+
+      ws_region_labeller: function(message) {
+        if(message.enable) {
+          region_labeller_display = 'block';
+        } else {
+          region_labeller_display = 'none';
+        }
+        $('#'+elementId+'_region_labeller').closest('.form-group')[0].style.display = region_labeller_display;
       }
     };
   }
@@ -411,7 +509,8 @@ if (HTMLWidgets.shinyMode) {
               'ws_set_height', 'ws_load', 'ws_seek_to', 'ws_seek_and_center',
               'ws_minimap', 'ws_init_plugin', 'ws_microphone', 'ws_regions',
               'ws_spectrogram', 'ws_cursor', 'ws_elan', 'ws_timeline',
-              'ws_on', 'ws_un', 'ws_un_all'];
+              'ws_on', 'ws_un', 'ws_un_all', 'ws_microphone_stop', 'ws_microphone_start',
+              'ws_region_labeller'];
 
   var addShinyHandler = function(fxn) {
     return function() {

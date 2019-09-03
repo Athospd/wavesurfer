@@ -91,6 +91,7 @@ wavesurfer <- function(audio = NULL,
                        width = NULL,
                        height = NULL,
                        elementId = NULL,
+                       region_labeller = FALSE,
                        annotations = NULL) {
 
   settings = list(
@@ -130,7 +131,8 @@ wavesurfer <- function(audio = NULL,
     skipLength = skipLength,
     splitChannels = splitChannels,
     waveColor = waveColor,
-    xhr = xhr
+    xhr = xhr,
+    region_labeller = region_labeller
   )
 
   # forward options using x
@@ -183,9 +185,15 @@ renderWavesurfer <- function(expr, env = parent.frame(), quoted = FALSE) {
 
 wavesurfer_html <- function(id, style, class, ...) {
   htmltools::tagList(
-    htmltools::tags$div(id = id, style = style, class = class),
     htmltools::tags$div(id = paste0(id, "-timeline"), style = style, class = class),
+    htmltools::tags$div(id = id, style = style, class = class),
     htmltools::tags$div(id = paste0(id, "-spectrogram"), style = style, class = class),
+    shiny::selectizeInput(
+      inputId = paste0(id, "_region_labeller"),
+      label = "Region labeller",
+      choices = c(),
+      options = list(create = TRUE)
+    ),
     htmltools::tags$div(id = paste0(id, "-elan"), style = style, class = class)
   )
 }

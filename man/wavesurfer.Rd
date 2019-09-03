@@ -18,7 +18,7 @@ wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
   responsive = FALSE, rtl = FALSE, scrollParent = FALSE,
   skipLength = 2, splitChannels = FALSE, waveColor = "#999",
   xhr = list(), width = NULL, height = NULL, elementId = NULL,
-  annotations = NULL)
+  region_labeller = FALSE, annotations = NULL)
 }
 \arguments{
 \item{audio}{todo.}

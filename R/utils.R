@@ -1,6 +1,12 @@
 .onLoad <- function(libname, pkgname) {
   shiny::registerInputHandler("regionsDF", function(data, ...) {
-    jsonlite::fromJSON(data)
+
+    data <- jsonlite::fromJSON(data)
+    if(length(data) == 0) {
+      tibble::tibble(start = numeric(0), end = numeric(0))
+    } else {
+      tibble::as_tibble(data)
+    }
   })
 }
 

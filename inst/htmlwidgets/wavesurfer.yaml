@@ -1,4 +1,10 @@
 dependencies:
+
+  - name: wavesurfer_css
+    version: 0.1.0
+    src: htmlwidgets
+    stylesheet: wavesurfer.css
+
   - name: wavesurfer
     version: 3.0.0
     src: htmlwidgets/lib/wavesurfer.js-3.0.0
@@ -30,3 +36,5 @@ dependencies:
       - util/prevent-click.js
       - util/request-animation-frame.js
       - util/style.js
+
+
