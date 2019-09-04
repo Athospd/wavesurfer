@@ -370,11 +370,19 @@ ws_microphone <- function(id, parameters = NULL) {
 #' ws_spectrogram
 #'
 #' @param id wavesurfer object or a character of its respective element id.
+#' @param fftSamples numeric. Number of FFT samples (512 by default). Number of spectral lines and height of the spectrogram will be a half of this parameter.
+#' @param labels logical. Whether or not to display frequency labels on Y axis. Defaults to FALSE.
+#' @param colorMap (not yet implemented) Specifies the colormap to be used when rendering the spectrogram.
 #'
 #' @param parameters list.
 #'
 #' @export
-ws_spectrogram <- function(id, parameters = NULL) {
+ws_spectrogram <- function(
+  id,
+  fftSamples = 512,
+  labels = FALSE,
+  colorMap = NULL
+) {
   method <- "ws_spectrogram"
   callJS()
 }

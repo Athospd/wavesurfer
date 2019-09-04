@@ -9,32 +9,12 @@ dependencies:
     version: 3.0.0
     src: htmlwidgets/lib/wavesurfer.js-3.0.0
     script:
-      - wavesurfer.min.js
-      - drawer.canvasentry.js
-      - drawer.js
-      - drawer.multicanvas.js
-      - html-init.js
-      - mediaelement.js
-      - peakcache.js
-      - webaudio.js
-      - plugin/wavesurfer.regions.min.js
-      - plugin/wavesurfer.microphone.min.js
-      - plugin/wavesurfer.spectrogram.min.js
-      - plugin/wavesurfer.minimap.min.js
-      - plugin/wavesurfer.cursor.min.js
-      - plugin/wavesurfer.timeline.min.js
-      - plugin/wavesurfer.elan.min.js
-      - util/ajax.js
-      - util/extend.js
-      - util/fetch.js
-      - util/frame.js
-      - util/get-id.js
-      - util/index.js
-      - util/max.js
-      - util/min.js
-      - util/observer.js
-      - util/prevent-click.js
-      - util/request-animation-frame.js
-      - util/style.js
-
-
+      - wavesurfer.js
+      - wavesurfer-html-init.js
+      - plugin/wavesurfer.regions.js
+      - plugin/wavesurfer.microphone.js
+      - plugin/wavesurfer.spectrogram.js
+      - plugin/wavesurfer.minimap.js
+      - plugin/wavesurfer.cursor.js
+      - plugin/wavesurfer.timeline.js
+      - plugin/wavesurfer.elan.js

@@ -25,13 +25,11 @@ HTMLWidgets.widget({
         microphone: {
             deferInit: true
         },
+        spectrogram: {
+          deferInit: true
+        },
         timeline: {
             container: '#'+elementId+'-timeline',
-            deferInit: true
-        },
-        spectrogram: {
-            container: '#'+elementId+'-spectrogram',
-            labels: true,
             deferInit: true
         },
         cursor: {
@@ -60,12 +58,14 @@ HTMLWidgets.widget({
     };
     var wsf = WaveSurfer.create({
       container: container,
+      wavaColor: "#ff0933",
+      visualization: "spectrogram",
       plugins: [
           WaveSurfer.regions.create(pluginOptions.regions),
           WaveSurfer.minimap.create(pluginOptions.minimap),
-          WaveSurfer.spectrogram.create(pluginOptions.spectrogram),
           WaveSurfer.microphone.create(pluginOptions.microphone),
           WaveSurfer.cursor.create(pluginOptions.cursor),
+          WaveSurfer.spectrogram.create(pluginOptions.spectrogram),
           WaveSurfer.timeline.create(pluginOptions.timeline),
           WaveSurfer.elan.create(pluginOptions.elan)
       ]
@@ -107,7 +107,6 @@ HTMLWidgets.widget({
           };
         }
 
-
         // insert annotations in batch
         function insertAnnotations(annotations) {
           annotations = HTMLWidgets.dataframeToD3(annotations);
@@ -118,7 +117,23 @@ HTMLWidgets.widget({
           }
         }
 
+        // play_pause with spacebar
+        function onKeyDown(event) {
+
+          switch (event.keyCode) {
+              case 32: //spaceBar
+                  {
+                    wsf.playPause();
+                    event.preventDefault();
+                  }
+                  break;
+          }
+          return false;
+        }
+
         if (!initialized) {
+          // play_pause with spacebar
+          window.addEventListener("keydown", onKeyDown, false);
           initialized = true;
 
           // attach the wsf object and the widget to the DOM
@@ -250,10 +265,10 @@ HTMLWidgets.widget({
             });
           }
           // listeners with no shiny dependency
-
           wsf.on("region-dblclick", function(region, e) {
             region.remove();
           });
+
         }
 
         wsf.params.audioContext = x.settings.audioContext;
@@ -292,6 +307,7 @@ HTMLWidgets.widget({
         wsf.audioUrl = x.audio;
         wsf.initialAnnotations = x.annotations;
         wsf.insertAnnotations = insertAnnotations;
+        wsf.elementId = elementId;
 
         //add regions passed by the user
         wsf.clearRegions();
@@ -454,8 +470,13 @@ HTMLWidgets.widget({
         this.initInactivePlugin('microphone');
       },
 
-      ws_spectrogram: function() {
-        this.initInactivePlugin('spectrogram');
+      ws_spectrogram: function(message) {
+        if(!wsf.getActivePlugins().spectrogram) {
+          message.container = '#' + wsf.elementId + '-spectrogram';
+          wsf.addPlugin(WaveSurfer.spectrogram.create(message)).initPlugin('spectrogram');
+        } else {
+          wsf.destroyPlugin('spectrogram');
+        }
       },
 
       ws_cursor: function() {

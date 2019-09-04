@@ -4,10 +4,16 @@
 \alias{ws_spectrogram}
 \title{ws_spectrogram}
 \usage{
-ws_spectrogram(id, parameters = NULL)
+ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
+
+\item{fftSamples}{numeric. Number of FFT samples (512 by default). Number of spectral lines and height of the spectrogram will be a half of this parameter.}
+
+\item{labels}{logical. Whether or not to display frequency labels on Y axis. Defaults to FALSE.}
+
+\item{colorMap}{(not yet implemented) Specifies the colormap to be used when rendering the spectrogram.}
 
 \item{parameters}{list.}
 }

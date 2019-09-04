@@ -78,11 +78,10 @@ server <- function(input, output, session) {
             annotations_df <- NULL
         }
         wavesurfer(
-            input$audio,
-            annotations = annotations_df,
-            barWidth = 2
+            input$audio
+            # annotations = annotations_df,
+            # barWidth = 2
         ) %>%
-            ws_set_wave_color(color = "#aa88ff") %>%
             ws_region_labeller()
     })
 
