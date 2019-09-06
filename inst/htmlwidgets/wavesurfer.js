@@ -59,7 +59,7 @@ HTMLWidgets.widget({
     var wsf = WaveSurfer.create({
       container: container,
       wavaColor: "#ff0933",
-      visualization: "spectrogram",
+      //visualization: "spectrogram",
       plugins: [
           WaveSurfer.regions.create(pluginOptions.regions),
           WaveSurfer.minimap.create(pluginOptions.minimap),
