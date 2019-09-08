@@ -16,10 +16,8 @@ ui <- fluidPage(
 
     actionButton("minimap", "Minimap", icon = icon("map")),
     actionButton("spectrogram", "spectrogram", icon = icon("chart")),
-    actionButton("microphone", "Microphone", icon = icon("mic")),
     actionButton("regions", "Regions", icon = icon("square")),
     actionButton("cursor", "Cursor", icon = icon("pointer")),
-    actionButton("elan", "Elan", icon = icon("chat")),
     actionButton("timeline", "Timeline", icon = icon("time")),
     tags$br(),
 
@@ -121,16 +119,8 @@ server <- function(input, output, session) {
         ws_cursor("meu_ws")
     })
 
-    observeEvent(input$elan, {
-        ws_elan("meu_ws")
-    })
-
     observeEvent(input$regions, {
         ws_regions("meu_ws")
-    })
-
-    observeEvent(input$microphone, {
-        ws_minimap("meu_ws")
     })
 
 

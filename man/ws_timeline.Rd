@@ -4,12 +4,10 @@
 \alias{ws_timeline}
 \title{ws_timeline}
 \usage{
-ws_timeline(id, parameters = NULL)
+ws_timeline(id)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
-
-\item{parameters}{list.}
 }
 \description{
 ws_timeline

@@ -156,7 +156,13 @@ wavesurfer <- function(audio = NULL,
     width = width,
     height = height,
     package = 'wavesurfer',
-    elementId = elementId
+    elementId = elementId,
+    sizingPolicy = sizingPolicy(
+      defaultHeight = "100%",
+      viewer.fill = TRUE,
+      browser.fill = TRUE,
+      knitr.defaultWidth = 700
+    )
   )
 }
 
@@ -190,16 +196,15 @@ renderWavesurfer <- function(expr, env = parent.frame(), quoted = FALSE) {
 
 wavesurfer_html <- function(id, style, class, ...) {
   htmltools::tagList(
-    htmltools::tags$div(id = paste0(id, "-timeline"), style = style, class = class),
+    htmltools::tags$div(id = paste0(id, "-timeline"), style = "display: 'none'", class = class),
     htmltools::tags$div(id = id, style = style, class = class),
-    htmltools::tags$div(id = paste0(id, "-spectrogram"), style = style, class = class),
+    htmltools::tags$div(id = paste0(id, "-spectrogram"), style = "display: 'none'", class = class),
     shiny::selectizeInput(
       inputId = paste0(id, "_region_labeller"),
       label = "Region labeller",
       choices = c(),
       options = list(create = TRUE)
-    ),
-    htmltools::tags$div(id = paste0(id, "-elan"), style = style, class = class)
+    )
   )
 }
 

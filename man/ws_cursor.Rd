@@ -4,7 +4,9 @@
 \alias{ws_cursor}
 \title{ws_cursor}
 \usage{
-ws_cursor(id, parameters = NULL)
+ws_cursor(id, showTime = TRUE, opacity = 1,
+  customShowTimeStyle = list(`background-color` = "#000", color = "#fff",
+  padding = "2px", `font-size` = "10px"))
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

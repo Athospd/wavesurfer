@@ -4,7 +4,7 @@
 \alias{ws_regions}
 \title{ws_regions}
 \usage{
-ws_regions(id, parameters = NULL)
+ws_regions(id, dragSelection = TRUE)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

@@ -16,43 +16,11 @@ HTMLWidgets.widget({
 
     //plugins pre-defined options
     var pluginOptions = {
-        minimap: {
-            waveColor: '#777',
-            progressColor: '#222',
-            height: 30,
-            deferInit: true
-        },
         microphone: {
-            deferInit: true
-        },
-        spectrogram: {
-          deferInit: true
-        },
-        timeline: {
-            container: '#'+elementId+'-timeline',
-            deferInit: true
-        },
-        cursor: {
-            showTime: true,
-            opacity: 1,
-            customShowTimeStyle: {
-                'background-color': '#000',
-                color: '#fff',
-                'font-size': '10px'
-            },
             deferInit: true
         },
         regions: {
             dragSelection: true,
-            deferInit: true
-        },
-        elan: {
-            url: '../elan/transcripts/001z.xml',
-            container: '#'+elementId+'-elan',
-            tiers: {
-                Text: true,
-                Comments: true
-            },
             deferInit: true
         }
     };
@@ -62,12 +30,7 @@ HTMLWidgets.widget({
       //visualization: "spectrogram",
       plugins: [
           WaveSurfer.regions.create(pluginOptions.regions),
-          WaveSurfer.minimap.create(pluginOptions.minimap),
-          WaveSurfer.microphone.create(pluginOptions.microphone),
-          WaveSurfer.cursor.create(pluginOptions.cursor),
-          WaveSurfer.spectrogram.create(pluginOptions.spectrogram),
-          WaveSurfer.timeline.create(pluginOptions.timeline),
-          WaveSurfer.elan.create(pluginOptions.elan)
+          WaveSurfer.microphone.create(pluginOptions.microphone)
       ]
     });
 
@@ -170,7 +133,7 @@ HTMLWidgets.widget({
             });
 
             wsf.on('ready', function () {
-
+              $('#'+elementId)[0].style.position = 'relative';
               Shiny.onInputChange(elementId + "_wave_color", wsf.getWaveColor());
               Shiny.onInputChange(elementId + "_progress_color", wsf.getProgressColor());
               Shiny.onInputChange(elementId + "_cursor_color", wsf.getCursorColor());
@@ -333,6 +296,7 @@ HTMLWidgets.widget({
 
       },
 
+
       wsf: wsf,
 
       initInactivePlugin: function (plugin) {
@@ -346,7 +310,6 @@ HTMLWidgets.widget({
       },
 
       ws_regions: function() {
-        console.log(wsf.audioUrl);
         if (!wsf.regions.wavesurfer.isReady) {
           setTimeout(() => this.ws_regions(), 1000);
           return;
@@ -458,12 +421,12 @@ HTMLWidgets.widget({
         wsf.seekAndCenter(message.progress);
       },
 
-      ws_init_plugin: function(message) {
-        this.initInactivePlugin(message.plugin);
-      },
-
-      ws_minimap: function() {
-        this.initInactivePlugin('minimap');
+      ws_minimap: function(message) {
+        if(!wsf.getActivePlugins().minimap) {
+          wsf.addPlugin(WaveSurfer.minimap.create(message)).initPlugin('minimap');
+        } else {
+          wsf.destroyPlugin('minimap');
+        }
       },
 
       ws_microphone: function() {
@@ -479,16 +442,21 @@ HTMLWidgets.widget({
         }
       },
 
-      ws_cursor: function() {
-        this.initInactivePlugin('cursor');
-      },
-
-      ws_elan: function() {
-        this.initInactivePlugin('elan');
+      ws_cursor: function(message) {
+        if(!wsf.getActivePlugins().cursor) {
+          wsf.addPlugin(WaveSurfer.cursor.create(message)).initPlugin('cursor');
+        } else {
+          wsf.destroyPlugin('cursor');
+        }
       },
 
       ws_timeline: function() {
-        this.initInactivePlugin('timeline');
+        if(!wsf.getActivePlugins().timeline) {
+          let timelineContainer = '#' + wsf.elementId + '-timeline';
+          wsf.addPlugin(WaveSurfer.timeline.create({container: timelineContainer})).initPlugin('timeline');
+        } else {
+          wsf.destroyPlugin('timeline');
+        }
       },
 
       ws_on: function(message) {
@@ -540,8 +508,8 @@ if (HTMLWidgets.shinyMode) {
               'ws_set_wave_color', 'ws_set_progress_color', 'ws_set_volume',
               'ws_set_playback_rate', 'ws_set_background_color', 'ws_zoom',
               'ws_set_height', 'ws_load', 'ws_seek_to', 'ws_seek_and_center',
-              'ws_minimap', 'ws_init_plugin', 'ws_microphone', 'ws_regions',
-              'ws_spectrogram', 'ws_cursor', 'ws_elan', 'ws_timeline',
+              'ws_minimap', 'ws_microphone', 'ws_regions',
+              'ws_spectrogram', 'ws_cursor', 'ws_timeline',
               'ws_on', 'ws_un', 'ws_un_all', 'ws_microphone_stop', 'ws_microphone_start',
               'ws_region_labeller'];
 

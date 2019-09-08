@@ -15,17 +15,11 @@ server <- function(input, output, session) {
 
   output$meu_ws <- renderWavesurfer({
 
-    wavesurfer(
-      audio = "http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3",
-      # annotations = data.frame(start = 1, end = 2, sound_id = "aff", segment_id = "opa", label = "boa")
-    ) %>%
+    wavesurfer(audio = "http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3") %>%
+      ws_set_wave_color('#55ffaa') %>%
       ws_spectrogram() %>%
-      ws_timeline() %>%
-      ws_minimap() %>%
-      ws_regions() %>%
-      ws_region_labeller() %>%
-      ws_controllers()
-
+      ws_cursor() %>%
+      ws_regions()
   })
 
 }

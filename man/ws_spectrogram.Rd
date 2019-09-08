@@ -4,7 +4,8 @@
 \alias{ws_spectrogram}
 \title{ws_spectrogram}
 \usage{
-ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL)
+ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL,
+  heigth = "128px")
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

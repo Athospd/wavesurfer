@@ -314,7 +314,7 @@ ws_seek_and_center <- function(id, progress) {
 #' @param parameters list.
 #'
 #' @export
-ws_minimap <- function(id, parameters = NULL) {
+ws_minimap <- function(id, waveColor = '#999', progressColor = '#555', height = 30) {
   method <- "ws_minimap"
   callJS()
 }
@@ -326,7 +326,7 @@ ws_minimap <- function(id, parameters = NULL) {
 #' @param parameters list.
 #'
 #' @export
-ws_regions <- function(id, parameters = NULL) {
+ws_regions <- function(id, dragSelection = TRUE) {
   method <- "ws_regions"
   callJS()
 }
@@ -347,10 +347,9 @@ ws_elan <- function(id, parameters = NULL) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param parameters list.
 #'
 #' @export
-ws_timeline <- function(id, parameters = NULL) {
+ws_timeline <- function(id) {
   method <- "ws_timeline"
   callJS()
 }
@@ -381,7 +380,8 @@ ws_spectrogram <- function(
   id,
   fftSamples = 512,
   labels = FALSE,
-  colorMap = NULL
+  colorMap = NULL,
+  heigth = "128px"
 ) {
   method <- "ws_spectrogram"
   callJS()
@@ -394,7 +394,7 @@ ws_spectrogram <- function(
 #' @param parameters list.
 #'
 #' @export
-ws_cursor <- function(id, parameters = NULL) {
+ws_cursor <- function(id, showTime = TRUE, opacity = 1, customShowTimeStyle = list('background-color' = '#000', color = '#fff', padding = '2px', 'font-size' = '10px')) {
   method <- "ws_cursor"
   callJS()
 }

@@ -1,8 +1,9 @@
 ---
-title: "get_started"
+title: "Get Started with WaveSurfer for R"
 output: rmarkdown::html_vignette
+runtime: shiny
 vignette: >
-  %\VignetteIndexEntry{get_started}
+  %\VignetteIndexEntry{Get Started with WaveSurfer for R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,3 +18,17 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(wavesurfer)
 ```
+
+## Loadind an audio
+```{r}
+renderWavesurfer(
+  wavesurfer('http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3') %>% 
+    ws_spectrogram() %>%
+    ws_timeline() %>%
+    ws_cursor() %>%
+    ws_minimap() %>%
+    ws_regions() %>%
+    ws_region_labeller()
+)
+```
+
