@@ -46,6 +46,7 @@
 #' @param height todo.
 #' @param elementId todo.
 #' @param annotations todo.
+#' @param visualization todo.
 #'
 #' @import htmlwidgets
 #'
@@ -92,7 +93,9 @@ wavesurfer <- function(audio = NULL,
                        height = NULL,
                        elementId = NULL,
                        region_labeller = FALSE,
-                       annotations = NULL) {
+                       annotations = NULL,
+                       visualization = 'wave',
+                       spectrogram_colormap = 'magma') {
 
   settings = list(
     audioContext = audioContext,
@@ -132,7 +135,9 @@ wavesurfer <- function(audio = NULL,
     splitChannels = splitChannels,
     waveColor = waveColor,
     xhr = xhr,
-    region_labeller = region_labeller
+    region_labeller = region_labeller,
+    visualization = visualization,
+    spectrogram_colormap = spectrogram_colormap
   )
 
   # mutating the format of the list
@@ -207,4 +212,24 @@ wavesurfer_html <- function(id, style, class, ...) {
     )
   )
 }
+
+
+
+#' runExample
+#'
+#' Launch shiny example applications.
+#'
+#' @param display.mode The mode in which to display the example. Defaults to showcase, but may be set to normal to see the example without code or commentary.
+#' @param example The example app to launch: "annotator", "microphone", "pluggins", "decoration".
+#'
+#' @export
+runExample <- function(example = "annotator", display.mode = "showcase") {
+  appDir <- system.file("example", package = "wavesurfer")
+  if (appDir == "") {
+    stop("Could not find example directory. Try re-installing `wavesurfer`.", call. = FALSE)
+  }
+
+  shiny::runApp(paste0(appDir, "/", example, ".R"), display.mode = display.mode)
+}
+
 

@@ -5,8 +5,10 @@
 #' @param annotations data.frame.
 #'
 #' @export
-ws_add_regions <- function(id, annotations) {
-  annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
+ws_add_regions <- function(id, annotations = NULL) {
+  if(!missing(annotations)) {
+    annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
+  }
   method <- "ws_add_regions"
   callJS()
 }
@@ -61,16 +63,6 @@ ws_play_pause <- function(id) {
 #' @export
 ws_destroy <- function(id) {
   method <- "ws_destroy"
-  callJS()
-}
-
-#' ws_cancel_ajax
-#'
-#' @param id wavesurfer object or a character of its respective element id.
-#'
-#' @export
-ws_cancel_ajax <- function(id) {
-  method <- "ws_cancel_ajax"
   callJS()
 }
 
@@ -310,8 +302,9 @@ ws_seek_and_center <- function(id, progress) {
 #' ws_minimap
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#'
-#' @param parameters list.
+#' @param waveColor
+#' @param progressColor
+#' @param height
 #'
 #' @export
 ws_minimap <- function(id, waveColor = '#999', progressColor = '#555', height = 30) {
@@ -322,24 +315,11 @@ ws_minimap <- function(id, waveColor = '#999', progressColor = '#555', height = 
 #' ws_regions
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#'
-#' @param parameters list.
+#' @param dragSelection
 #'
 #' @export
 ws_regions <- function(id, dragSelection = TRUE) {
   method <- "ws_regions"
-  callJS()
-}
-
-#' ws_elan
-#'
-#' @param id wavesurfer object or a character of its respective element id.
-#'
-#' @param parameters list.
-#'
-#' @export
-ws_elan <- function(id, parameters = NULL) {
-  method <- "ws_elan"
   callJS()
 }
 
@@ -372,8 +352,7 @@ ws_microphone <- function(id, parameters = NULL) {
 #' @param fftSamples numeric. Number of FFT samples (512 by default). Number of spectral lines and height of the spectrogram will be a half of this parameter.
 #' @param labels logical. Whether or not to display frequency labels on Y axis. Defaults to FALSE.
 #' @param colorMap (not yet implemented) Specifies the colormap to be used when rendering the spectrogram.
-#'
-#' @param parameters list.
+#' @param heigth
 #'
 #' @export
 ws_spectrogram <- function(
@@ -390,8 +369,9 @@ ws_spectrogram <- function(
 #' ws_cursor
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#'
-#' @param parameters list.
+#' @param showTime
+#' @param opacity
+#' @param customShowTimeStyle
 #'
 #' @export
 ws_cursor <- function(id, showTime = TRUE, opacity = 1, customShowTimeStyle = list('background-color' = '#000', color = '#fff', padding = '2px', 'font-size' = '10px')) {
@@ -458,9 +438,22 @@ ws_microphone_stop <- function(id) {
 #' ws_region_labeller
 #'
 #' @param id wavesurfer object or a character of its respective element id.
+#' @param enable
 #'
 #' @export
 ws_region_labeller <- function(id, enable = TRUE) {
   method <- "ws_region_labeller"
   callJS()
+}
+
+#' ws_annotator
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+ws_annotator <- function(id) {
+  ws_region_labeller(ws_regions(id))
 }

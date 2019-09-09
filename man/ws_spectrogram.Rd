@@ -16,7 +16,7 @@ ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL,
 
 \item{colorMap}{(not yet implemented) Specifies the colormap to be used when rendering the spectrogram.}
 
-\item{parameters}{list.}
+\item{heigth}{}
 }
 \description{
 ws_spectrogram

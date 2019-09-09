@@ -10,7 +10,7 @@ ws_minimap(id, waveColor = "#999", progressColor = "#555",
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{parameters}{list.}
+\item{height}{}
 }
 \description{
 ws_minimap

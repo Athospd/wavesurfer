@@ -9,7 +9,7 @@ ws_regions(id, dragSelection = TRUE)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{parameters}{list.}
+\item{dragSelection}{}
 }
 \description{
 ws_regions

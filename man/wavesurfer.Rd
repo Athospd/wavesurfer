@@ -18,7 +18,8 @@ wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
   responsive = FALSE, rtl = FALSE, scrollParent = FALSE,
   skipLength = 2, splitChannels = FALSE, waveColor = "#999",
   xhr = list(), width = NULL, height = NULL, elementId = NULL,
-  region_labeller = FALSE, annotations = NULL)
+  region_labeller = FALSE, annotations = NULL,
+  visualization = "wave", spectrogram_colormap = "magma")
 }
 \arguments{
 \item{audio}{todo.}
@@ -104,6 +105,8 @@ wavesurfer(audio = NULL, audioContext = NULL, audioRate = 1,
 \item{elementId}{todo.}
 
 \item{annotations}{todo.}
+
+\item{visualization}{todo.}
 }
 \description{
 \code{wavesurfer} is an interactive soundwave player and visualizer with rich set of plugins and tools.

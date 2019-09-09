@@ -71,13 +71,14 @@ server <- function(input, output, session) {
         annotations_path <- paste0(pasta_anotacoes, annotations_path)
 
         if(file.exists(annotations_path)) {
-            annotations_df <- readr::read_rds(annotations_path) %>% dplyr::mutate(label = character(0))
+            annotations_df <- readr::read_rds(annotations_path)
         } else {
             annotations_df <- NULL
         }
+
         wavesurfer(
-            input$audio
-            # annotations = annotations_df,
+            input$audio,
+            annotations = annotations_df,
             # barWidth = 2
         ) %>%
             ws_region_labeller()

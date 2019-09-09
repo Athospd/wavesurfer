@@ -11,7 +11,7 @@ ws_cursor(id, showTime = TRUE, opacity = 1,
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{parameters}{list.}
+\item{customShowTimeStyle}{}
 }
 \description{
 ws_cursor

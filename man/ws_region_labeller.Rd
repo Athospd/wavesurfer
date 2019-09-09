@@ -8,6 +8,8 @@ ws_region_labeller(id, enable = TRUE)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
+
+\item{enable}{}
 }
 \description{
 ws_region_labeller

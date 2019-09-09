@@ -27,7 +27,7 @@ HTMLWidgets.widget({
     var wsf = WaveSurfer.create({
       container: container,
       wavaColor: "#ff0933",
-      //visualization: "spectrogram",
+      colorMap: 'magma',
       plugins: [
           WaveSurfer.regions.create(pluginOptions.regions),
           WaveSurfer.microphone.create(pluginOptions.microphone)
@@ -38,6 +38,50 @@ HTMLWidgets.widget({
       renderValue: function(x) {
         // alias this
         var that = this;
+
+
+
+        wsf.params.audioContext = x.settings.audioContext;
+        wsf.params.audioRate = x.settings.audioRate;
+        wsf.params.audioScriptProcessor = x.settings.audioScriptProcessor;
+        wsf.params.autoCenter = x.settings.autoCenter;
+        wsf.params.backend = x.settings.backend;
+        wsf.params.backgroundColor = x.settings.backgroundColor;
+        wsf.params.barHeight = x.settings.barHeight;
+        wsf.params.barGap = x.settings.barGap;
+        wsf.params.barWidth = x.settings.barWidth;
+        wsf.params.closeAudioContext = x.settings.closeAudioContext;
+        wsf.params.cursorColor = x.settings.cursorColor;
+        wsf.params.cursorWidth = x.settings.cursorWidth;
+        wsf.params.duration = x.settings.duration;
+        wsf.params.fillParent = x.settings.fillParent;
+        wsf.params.forceDecode = x.settings.forceDecode;
+        wsf.params.hideScrollbar = x.settings.hideScrollbar;
+        wsf.params.interact = x.settings.interact;
+        wsf.params.loopSelection = x.settings.loopSelection;
+        wsf.params.maxCanvasWidth = x.settings.maxCanvasWidth;
+        wsf.params.mediaControls = x.settings.mediaControls;
+        wsf.params.mediaType = x.settings.mediaType;
+        wsf.params.minPxPerSec = x.settings.minPxPerSec;
+        wsf.params.normalize = x.settings.normalize;
+        wsf.params.partialRender = x.settings.partialRender;
+        wsf.params.progressColor = x.settings.progressColor;
+        wsf.params.removeMediaElementOnDestroy = x.settings.removeMediaElementOnDestroy;
+        wsf.params.responsive = x.settings.responsive;
+        wsf.params.rtl = x.settings.rtl;
+        wsf.params.scrollParent = x.settings.scrollParent;
+        wsf.params.skipLength = x.settings.skipLength;
+        wsf.params.splitChannels = x.settings.splitChannels;
+        wsf.params.waveColor = x.settings.waveColor;
+        wsf.params.xhr = x.settings.xhr;
+        wsf.audioUrl = x.audio;
+        wsf.initialAnnotations = x.annotations;
+        wsf.insertAnnotations = insertAnnotations;
+        wsf.elementId = elementId;
+        wsf.params.visualization = x.settings.visualization;
+
+
+
 
         // initialize with audio
         if(!x.audio) {
@@ -146,7 +190,9 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_playback_rate", wsf.getPlaybackRate());
 
               if(wsf.getActivePlugins().regions) {
-                Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
+                let regions = get_regions_data(wsf.regions.list);
+                regions = regions ? regions : '{}';
+                Shiny.onInputChange(elementId + "_regions:regionsDF", regions);
               }
 
             });
@@ -171,7 +217,9 @@ HTMLWidgets.widget({
 
             wsf.on("region-updated", function(region, e) {
               Shiny.onInputChange(elementId + "_selected_region:regionsDF", JSON.stringify(get_region_data(region)));
-              Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
+              let regions = get_regions_data(wsf.regions.list);
+              regions = regions ? regions : '{}';
+              Shiny.onInputChange(elementId + "_regions:regionsDF", regions);
             });
 
             wsf.on("region-update-end", function(region) {
@@ -233,44 +281,6 @@ HTMLWidgets.widget({
           });
 
         }
-
-        wsf.params.audioContext = x.settings.audioContext;
-        wsf.params.audioRate = x.settings.audioRate;
-        wsf.params.audioScriptProcessor = x.settings.audioScriptProcessor;
-        wsf.params.autoCenter = x.settings.autoCenter;
-        wsf.params.backend = x.settings.backend;
-        wsf.params.backgroundColor = x.settings.backgroundColor;
-        wsf.params.barHeight = x.settings.barHeight;
-        wsf.params.barGap = x.settings.barGap;
-        wsf.params.barWidth = x.settings.barWidth;
-        wsf.params.closeAudioContext = x.settings.closeAudioContext;
-        wsf.params.cursorColor = x.settings.cursorColor;
-        wsf.params.cursorWidth = x.settings.cursorWidth;
-        wsf.params.duration = x.settings.duration;
-        wsf.params.fillParent = x.settings.fillParent;
-        wsf.params.forceDecode = x.settings.forceDecode;
-        wsf.params.hideScrollbar = x.settings.hideScrollbar;
-        wsf.params.interact = x.settings.interact;
-        wsf.params.loopSelection = x.settings.loopSelection;
-        wsf.params.maxCanvasWidth = x.settings.maxCanvasWidth;
-        wsf.params.mediaControls = x.settings.mediaControls;
-        wsf.params.mediaType = x.settings.mediaType;
-        wsf.params.minPxPerSec = x.settings.minPxPerSec;
-        wsf.params.normalize = x.settings.normalize;
-        wsf.params.partialRender = x.settings.partialRender;
-        wsf.params.progressColor = x.settings.progressColor;
-        wsf.params.removeMediaElementOnDestroy = x.settings.removeMediaElementOnDestroy;
-        wsf.params.responsive = x.settings.responsive;
-        wsf.params.rtl = x.settings.rtl;
-        wsf.params.scrollParent = x.settings.scrollParent;
-        wsf.params.skipLength = x.settings.skipLength;
-        wsf.params.splitChannels = x.settings.splitChannels;
-        wsf.params.waveColor = x.settings.waveColor;
-        wsf.params.xhr = x.settings.xhr;
-        wsf.audioUrl = x.audio;
-        wsf.initialAnnotations = x.annotations;
-        wsf.insertAnnotations = insertAnnotations;
-        wsf.elementId = elementId;
 
         //add regions passed by the user
         wsf.clearRegions();
@@ -424,8 +434,10 @@ HTMLWidgets.widget({
       ws_minimap: function(message) {
         if(!wsf.getActivePlugins().minimap) {
           wsf.addPlugin(WaveSurfer.minimap.create(message)).initPlugin('minimap');
+          $('#' + wsf.elementId)[0].style['margin-bottom'] = message.height.toString() + 'px';
         } else {
           wsf.destroyPlugin('minimap');
+          $('#' + wsf.elementId)[0].style['margin-bottom'] = '0';
         }
       },
 

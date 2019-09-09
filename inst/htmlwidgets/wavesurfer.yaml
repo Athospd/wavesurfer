@@ -1,13 +1,16 @@
 dependencies:
 
-  - name: wavesurfer_css
+  - name: wavesurfer_extra
     version: 0.1.0
     src: htmlwidgets
-    stylesheet: wavesurfer.css
+    stylesheet:
+      - wavesurfer.css
+    script:
+      - colormaps.js
 
   - name: wavesurfer
     version: 3.0.0
-    src: htmlwidgets/lib/wavesurfer.js-3.0.0
+    src: htmlwidgets/lib/wavesurfer.js-modified
     script:
       - wavesurfer.js
       - wavesurfer-html-init.js
