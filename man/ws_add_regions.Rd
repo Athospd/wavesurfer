@@ -4,7 +4,7 @@
 \alias{ws_add_regions}
 \title{ws_add_regions}
 \usage{
-ws_add_regions(id, annotations = NULL)
+ws_add_regions(id, annotations = NULL, color = NULL)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

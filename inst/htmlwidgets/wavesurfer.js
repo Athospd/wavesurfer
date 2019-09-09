@@ -119,6 +119,7 @@ HTMLWidgets.widget({
           annotations = HTMLWidgets.dataframeToD3(annotations);
           if (typeof annotations !== 'undefined') {
             annotations.forEach(function(obj) {
+              obj.color = 'rgb(217, 0, 163, 0.1)';
               wsf.addRegion(obj);
             });
           }
@@ -212,6 +213,7 @@ HTMLWidgets.widget({
 
             //regions plugin events ----------------------------------------------
             wsf.on("region-created", function(region) {
+              region.color =  'rgb(250, 200, 10, 0.5)';
               region.element.click();
             });
 

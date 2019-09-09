@@ -5,9 +5,13 @@
 #' @param annotations data.frame.
 #'
 #' @export
-ws_add_regions <- function(id, annotations = NULL) {
+ws_add_regions <- function(id, annotations = NULL, color = NULL) {
   if(!missing(annotations)) {
     annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
+
+    if(!is.null(color)) {
+      annotations$color <- 'rgb(250, 200, 10, 0.5)';
+    }
   }
   method <- "ws_add_regions"
   callJS()

@@ -79,6 +79,7 @@ server <- function(input, output, session) {
         wavesurfer(
             input$audio,
             annotations = annotations_df,
+            visualization = 'spectrogram',
             # barWidth = 2
         ) %>%
             ws_region_labeller()
