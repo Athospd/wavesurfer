@@ -24,7 +24,10 @@ Depends:
 Suggests: 
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    shinyWidgets,
+    colourpicker,
+    tuneR
 RoxygenNote: 6.1.1
 Imports: 
     magrittr,
