@@ -1,3 +1,4 @@
+if(!require(shinyWidgets)) install.packages(shinyWidgets)
 library(shiny)
 library(wavesurfer)
 
@@ -12,27 +13,50 @@ shiny::addResourcePath("wav", wav_folder)
 ui <- fluidPage(
 
   # Application title
-  titlePanel("Anotador"),
+  titlePanel("Annotator"),
 
-  uiOutput("wav_files"),
+  tags$p(tags$strong("Wavs Folder:"), wav_folder),
+  tags$p(tags$strong("Annotations Folder:"), annotation_folder),
 
-  actionButton("minimap", "Minimap", icon = icon("map")),
-  actionButton("spectrogram", "spectrogram", icon = icon("chart")),
-  tags$br(),
+  selectizeInput(
+    "audio", "Audio:", width = "100%",
+    choices = list.files(wav_folder)
+  ),
+  materialSwitch("spectrogram", "Bigger spectrogram", inline = TRUE),
+
   wavesurferOutput("my_ws"),
-  tags$br(),
-  actionButton("play", "Play", icon = icon("play")),
-  actionButton("pause", "Pause", icon = icon("pause")),
-  actionButton("mute", "Mute", icon = icon("times")),
-  actionButton("stop", "Stop", icon = icon("stop")),
-  actionButton("save", "Save", icon = icon("save")),
-  actionButton("suggest_regions", "Suggest regions", icon = icon("cut")),
-  tags$br(),
-  sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50),
-  tags$br(),
-  verbatimTextOutput("regions"),
-  verbatimTextOutput("current_region"),
-  verbatimTextOutput("inputs_available")
+
+  fluidRow(
+    column(
+      width = 6,
+      actionButton("play", "", icon = icon("play")),
+      actionButton("pause", "", icon = icon("pause")),
+      actionButton("stop", "", icon = icon("stop")),
+      actionButton("skip_backward", "", icon = icon("backward")),
+      actionButton("skip_forward", "", icon = icon("forward")),
+      actionButton("mute", "", icon = icon("volume-off")),
+      sliderInput("volume", "Volume", min = 0, max = 100, value = 50)
+    ),
+    column(
+      width = 6,
+      actionButton("save", "Save", icon = icon("save")),
+      actionButton("suggest_regions", "Suggest regions", icon = icon("cut")),
+      actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt")),
+      tags$br(),
+      sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50)
+    ),
+    column(
+      width = 10,
+      tags$hr(),
+      tags$h4("input$my_ws_regions"),
+      tableOutput("regions"),
+      tags$hr(),
+      tags$hr(),
+      tags$h4("input$my_ws_selected_region"),
+      tableOutput("current_region"),
+      tags$hr()
+    )
+  )
 )
 
 # Define server logic required to draw a histogram
@@ -42,19 +66,13 @@ server <- function(input, output, session) {
     stringr::str_replace(input$audio, "^wav/", "")
   })
 
-  output$wav_files <- renderUI({
-    selectizeInput(
-      "audio", "Audio: ", width = "100%",
-      choices = list.files(wav_folder)
-    )
-  })
-
   output$my_ws <- renderWavesurfer({
     req(!is.null(input$audio))
 
     # look if there is regions already annotated
     annotations_file <- stringr::str_replace_all(stringr::str_replace_all(input$audio, "wav$", "rds"), "^.*/", "")
-    annotations_file <- paste0(annotation_folder, annotations_file)
+    annotations_file <- paste0(annotation_folder, "/", annotations_file)
+
     if(file.exists(annotations_file)) {
       annotations_df <- readr::read_rds(annotations_file)
     } else {
@@ -64,22 +82,24 @@ server <- function(input, output, session) {
     wavesurfer(
       paste0("wav/",input$audio),
       annotations = annotations_df,
-      waveColor = "#cc33aa",
       visualization = 'spectrogram'
     ) %>%
-      ws_annotator()
+      ws_annotator() %>%
+      ws_minimap() %>%
+      ws_cursor()
   })
 
   # controllers
   observeEvent(input$play, {ws_play("my_ws")})
   observeEvent(input$pause, {ws_pause("my_ws")})
   observeEvent(input$mute, {ws_toggle_mute("my_ws")})
+  observeEvent(input$skip_forward, {ws_skip_forward("my_ws", 3)})
+  observeEvent(input$skip_backward, {ws_skip_backward("my_ws", 3)})
   observeEvent(input$stop, {ws_stop("my_ws")})
-  observeEvent(input$minimap, {ws_minimap("my_ws")})
-  observeEvent(input$spectrogram, {ws_spectrogram("my_ws")})
-  observeEvent(input$regions, {ws_regions("my_ws")})
-  observe({ws_zoom("my_ws", input$zoom)})
+  observe({ws_set_volume("my_ws", input$volume/50 )})
+  observe({ws_zoom("my_ws", input$zoom )})
 
+  # save
   observeEvent(input$save, {
     req(!is.null(wav_name()))
 
@@ -88,6 +108,7 @@ server <- function(input, output, session) {
     readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
   })
 
+  # suggest regions
   observeEvent(input$suggest_regions, {
 
     wav <- tuneR::readWave(paste0(wav_folder, "/", wav_name()))
@@ -110,21 +131,31 @@ server <- function(input, output, session) {
       suggested_annotations$label <- "(suggested region)"
     }
 
-    names(suggested_annotations) <- c("sound_id", "segmentation_id", "start", "end", "label")
+    names(suggested_annotations) <- c("sound_id", "region_id", "start", "end", "label")
     ws_add_regions("my_ws", suggested_annotations)
   })
 
-  output$current_region <- renderPrint({
+  # clear all regions
+  observeEvent(input$clear_regions, {ws_clear_regions("my_ws")})
+
+  #bigger spectrogram
+  observe({
+    if(input$spectrogram) {
+      ws_spectrogram("my_ws")
+    } else {
+      ws_destroy_spectrogram("my_ws")
+    }
+  })
+
+  # the current region selected
+  output$current_region <- renderTable({
     input$my_ws_selected_region
-  })
+  }, width = "90%")
 
-  output$regions <- renderPrint({
+  # table of all regions
+  output$regions <- renderTable({
     input$my_ws_regions
-  })
-
-  output$inputs_available <- renderPrint({
-    reactiveValuesToList(input)
-  })
+  }, width = "90%")
 }
 
 # Run the application

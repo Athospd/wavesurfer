@@ -5,7 +5,7 @@
 \title{ws_spectrogram}
 \usage{
 ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL,
-  heigth = "128px")
+  height = 128)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
@@ -16,7 +16,7 @@ ws_spectrogram(id, fftSamples = 512, labels = FALSE, colorMap = NULL,
 
 \item{colorMap}{(not yet implemented) Specifies the colormap to be used when rendering the spectrogram.}
 
-\item{heigth}{}
+\item{height}{must be a valid CSS unit (like '100\%' or 'auto') or a number, which will be coerced to a string and have 'px' appended.}
 }
 \description{
 ws_spectrogram

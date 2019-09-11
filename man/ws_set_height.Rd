@@ -9,7 +9,7 @@ ws_set_height(id, height = NULL)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{height}{numeric.}
+\item{height}{numeric. The height of the visualization.}
 }
 \description{
 ws_set_height

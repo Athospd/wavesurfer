@@ -26,3 +26,8 @@ callJS <- function() {
     stop("The `id` argument must be either a wavesurfer htmlwidget or an ID of a wavesurfer htmlwidget.", call. = FALSE)
   }
 }
+
+#' @importFrom utils packageVersion
+tidyr_new_interface <- function() {
+  utils::packageVersion("tidyr") > "0.8.99"
+}

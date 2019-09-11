@@ -2,12 +2,19 @@
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param annotations data.frame.
+#' @param annotations a data.frame with columns "sound_id" (character), "region_id"
+#' (character), "start" (numeric), "end" (numeric), "label" (character). The rows
+#' represents the annotated regions of the audio.
+#' @param color a character with the following format: 'rgb(r, g, b, a)'. Default is 'rgb(250, 200, 10, 0.5)'.
 #'
 #' @export
 ws_add_regions <- function(id, annotations = NULL, color = NULL) {
   if(!missing(annotations)) {
-    annotations <- tidyr::nest(annotations, -start, -end, .key = "attributes")
+    if(tidyr_new_interface()) {
+      annotations <- tidyr::nest(annotations, attributes = c(sound_id, region_id, label))
+    } else {
+      annotations <- tidyr::nest(annotations, sound_id, region_id, label, .key = "attributes")
+    }
 
     if(!is.null(color)) {
       annotations$color <- 'rgb(250, 200, 10, 0.5)';
@@ -220,7 +227,7 @@ ws_set_background_color <- function(id, color = NULL) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param new_volume numeric. From 0 to 1.
+#' @param new_volume numeric. The volume of the playback. 0 is mute, 1 is normal volume, 2 is twice loud and so on.
 #'
 #' @export
 ws_set_volume <- function(id, new_volume = NULL) {
@@ -232,7 +239,7 @@ ws_set_volume <- function(id, new_volume = NULL) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param rate numeric.
+#' @param rate numeric. The speed of playback. 0.5 is half speed, 1 is normal speed, 2 is double speed and so on.
 #'
 #' @export
 ws_set_playback_rate <- function(id, rate = NULL) {
@@ -244,7 +251,7 @@ ws_set_playback_rate <- function(id, rate = NULL) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param height numeric.
+#' @param height numeric. The height of the visualization.
 #'
 #' @export
 ws_set_height <- function(id, height = NULL) {
@@ -269,12 +276,10 @@ ws_zoom <- function(id, px_per_sec = NULL) {
 #' @param id wavesurfer object or a character of its respective element id.
 #'
 #' @param url character of the url of the sound.
-#' @param peaks numeric vector. The peaks to draw the soundwave.
-#' @param preload logical.
-#' @param duration numeric.
+#' @param peaks numeric vector. Optional. the peaks to draw the soundwave.
 #'
 #' @export
-ws_load <- function(id, url, peaks = NULL, preload = NULL, duration = NULL) {
+ws_load <- function(id, url, peaks = NULL) {
   method <- "ws_load"
   callJS()
 }
@@ -283,7 +288,7 @@ ws_load <- function(id, url, peaks = NULL, preload = NULL, duration = NULL) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param progress numeric.
+#' @param progress numeric. Seeks to a progress [0..1] (0 = beginning, 1 = end).
 #'
 #' @export
 ws_seek_to <- function(id, progress) {
@@ -295,7 +300,7 @@ ws_seek_to <- function(id, progress) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param progress numeric.
+#' @param progress numeric. Seeks to a progress and centers view. [0..1] (0 = beginning, 1 = end).
 #'
 #' @export
 ws_seek_and_center <- function(id, progress) {
@@ -306,9 +311,9 @@ ws_seek_and_center <- function(id, progress) {
 #' ws_minimap
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#' @param waveColor
-#' @param progressColor
-#' @param height
+#' @param waveColor a character. The color of the wave in hexadecimal representation. Default is '#999'.
+#' @param progressColor a character. The color of wave behind the progress bar. In hexadecimal representation. Default is '#555'.
+#' @param height a numeric. The height in pixels of the minimap.
 #'
 #' @export
 ws_minimap <- function(id, waveColor = '#999', progressColor = '#555', height = 30) {
@@ -316,10 +321,21 @@ ws_minimap <- function(id, waveColor = '#999', progressColor = '#555', height = 
   callJS()
 }
 
+#' ws_destroy_minimap
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_destroy_minimap <- function(id) {
+  method <- "ws_destroy_minimap"
+  callJS()
+}
+
 #' ws_regions
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#' @param dragSelection
+#' @param dragSelection a lofical. If TRUE lets you create regions by selecting areas
+#' of the waveform with mouse. Useful for annotations. Default is TRUE.
 #'
 #' @export
 ws_regions <- function(id, dragSelection = TRUE) {
@@ -331,10 +347,19 @@ ws_regions <- function(id, dragSelection = TRUE) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#'
 #' @export
 ws_timeline <- function(id) {
   method <- "ws_timeline"
+  callJS()
+}
+
+#' ws_destroy_timeline
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_destroy_timeline <- function(id) {
+  method <- "ws_destroy_timeline"
   callJS()
 }
 
@@ -356,7 +381,7 @@ ws_microphone <- function(id, parameters = NULL) {
 #' @param fftSamples numeric. Number of FFT samples (512 by default). Number of spectral lines and height of the spectrogram will be a half of this parameter.
 #' @param labels logical. Whether or not to display frequency labels on Y axis. Defaults to FALSE.
 #' @param colorMap (not yet implemented) Specifies the colormap to be used when rendering the spectrogram.
-#' @param heigth
+#' @param height must be a valid CSS unit (like '100\%' or 'auto') or a number, which will be coerced to a string and have 'px' appended.
 #'
 #' @export
 ws_spectrogram <- function(
@@ -364,22 +389,44 @@ ws_spectrogram <- function(
   fftSamples = 512,
   labels = FALSE,
   colorMap = NULL,
-  heigth = "128px"
+  height = 128
 ) {
+  if(is.numeric(height)) height <- paste0(height, "px")
   method <- "ws_spectrogram"
+  callJS()
+}
+
+#' ws_destroy_spectrogram
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_destroy_spectrogram <- function(id) {
+  method <- "ws_destroy_spectrogram"
   callJS()
 }
 
 #' ws_cursor
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#' @param showTime
-#' @param opacity
-#' @param customShowTimeStyle
+#' @param showTime a logical. If TRUE displays the time next to the cursor. Defaults to TRUE.
+#' @param opacity a numeric. The opacity/transparency. Default is 1.
+#' @param customShowTimeStyle a list with custom styles which are applied to the cursor time element, such
+#' 'background-color', color, padding, 'font-size', etc.
 #'
 #' @export
 ws_cursor <- function(id, showTime = TRUE, opacity = 1, customShowTimeStyle = list('background-color' = '#000', color = '#fff', padding = '2px', 'font-size' = '10px')) {
   method <- "ws_cursor"
+  callJS()
+}
+
+#' ws_destroy_cursor
+#'
+#' @param id wavesurfer object or a character of its respective element id.
+#'
+#' @export
+ws_destroy_cursor <- function(id) {
+  method <- "ws_destroy_cursor"
   callJS()
 }
 
@@ -442,7 +489,7 @@ ws_microphone_stop <- function(id) {
 #' ws_region_labeller
 #'
 #' @param id wavesurfer object or a character of its respective element id.
-#' @param enable
+#' @param enable a logical. Default is TRUE.
 #'
 #' @export
 ws_region_labeller <- function(id, enable = TRUE) {
@@ -454,10 +501,7 @@ ws_region_labeller <- function(id, enable = TRUE) {
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @return
 #' @export
-#'
-#' @examples
 ws_annotator <- function(id) {
   ws_region_labeller(ws_regions(id))
 }

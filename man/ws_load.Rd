@@ -4,18 +4,14 @@
 \alias{ws_load}
 \title{ws_load}
 \usage{
-ws_load(id, url, peaks = NULL, preload = NULL, duration = NULL)
+ws_load(id, url, peaks = NULL)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
 \item{url}{character of the url of the sound.}
 
-\item{peaks}{numeric vector. The peaks to draw the soundwave.}
-
-\item{preload}{logical.}
-
-\item{duration}{numeric.}
+\item{peaks}{numeric vector. Optional. the peaks to draw the soundwave.}
 }
 \description{
 ws_load

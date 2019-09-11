@@ -8,11 +8,9 @@ HTMLWidgets.widget({
 
   factory: function(el, width, height) {
 
-
     var initialized = false;
     var elementId = el.id;
     var container =  document.getElementById(elementId);
-
 
     //plugins pre-defined options
     var pluginOptions = {
@@ -24,10 +22,12 @@ HTMLWidgets.widget({
             deferInit: true
         }
     };
+
     var wsf = WaveSurfer.create({
       container: container,
       wavaColor: "#ff0933",
       colorMap: 'magma',
+      removeMediaElementOnDestroy: true,
       plugins: [
           WaveSurfer.regions.create(pluginOptions.regions),
           WaveSurfer.microphone.create(pluginOptions.microphone)
@@ -39,46 +39,35 @@ HTMLWidgets.widget({
         // alias this
         var that = this;
 
-
-
-        wsf.params.audioContext = x.settings.audioContext;
+        wsf.params.playPauseWithSpaceBar = x.settings.playPauseWithSpaceBar;
         wsf.params.audioRate = x.settings.audioRate;
-        wsf.params.audioScriptProcessor = x.settings.audioScriptProcessor;
         wsf.params.autoCenter = x.settings.autoCenter;
-        wsf.params.backend = x.settings.backend;
         wsf.params.backgroundColor = x.settings.backgroundColor;
         wsf.params.barHeight = x.settings.barHeight;
         wsf.params.barGap = x.settings.barGap;
         wsf.params.barWidth = x.settings.barWidth;
         wsf.params.closeAudioContext = x.settings.closeAudioContext;
         wsf.params.cursorColor = x.settings.cursorColor;
-        wsf.params.cursorWidth = x.settings.cursorWidth;
-        wsf.params.duration = x.settings.duration;
         wsf.params.fillParent = x.settings.fillParent;
         wsf.params.forceDecode = x.settings.forceDecode;
         wsf.params.hideScrollbar = x.settings.hideScrollbar;
         wsf.params.interact = x.settings.interact;
         wsf.params.loopSelection = x.settings.loopSelection;
         wsf.params.maxCanvasWidth = x.settings.maxCanvasWidth;
-        wsf.params.mediaControls = x.settings.mediaControls;
-        wsf.params.mediaType = x.settings.mediaType;
         wsf.params.minPxPerSec = x.settings.minPxPerSec;
         wsf.params.normalize = x.settings.normalize;
-        wsf.params.partialRender = x.settings.partialRender;
         wsf.params.progressColor = x.settings.progressColor;
-        wsf.params.removeMediaElementOnDestroy = x.settings.removeMediaElementOnDestroy;
         wsf.params.responsive = x.settings.responsive;
-        wsf.params.rtl = x.settings.rtl;
         wsf.params.scrollParent = x.settings.scrollParent;
         wsf.params.skipLength = x.settings.skipLength;
         wsf.params.splitChannels = x.settings.splitChannels;
         wsf.params.waveColor = x.settings.waveColor;
-        wsf.params.xhr = x.settings.xhr;
+        wsf.params.visualization = x.settings.visualization;
+
         wsf.audioUrl = x.audio;
         wsf.initialAnnotations = x.annotations;
         wsf.insertAnnotations = insertAnnotations;
         wsf.elementId = elementId;
-        wsf.params.visualization = x.settings.visualization;
 
 
 
@@ -107,7 +96,7 @@ HTMLWidgets.widget({
         function get_region_data(region) {
           return {
             sound_id: region.attributes.sound_id ? region.attributes.sound_id.toString() : x.audio,
-            segment_id: region.id,
+            region_id: region.id,
             start: region.start,
             end: region.end,
             label: region.attributes.label ? region.attributes.label.toString() : ""
@@ -119,7 +108,7 @@ HTMLWidgets.widget({
           annotations = HTMLWidgets.dataframeToD3(annotations);
           if (typeof annotations !== 'undefined') {
             annotations.forEach(function(obj) {
-              obj.color = 'rgb(217, 0, 163, 0.1)';
+              obj.color = 'rgb(217, 0, 163, 0.5)';
               wsf.addRegion(obj);
             });
           }
@@ -127,14 +116,15 @@ HTMLWidgets.widget({
 
         // play_pause with spacebar
         function onKeyDown(event) {
-
-          switch (event.keyCode) {
-              case 32: //spaceBar
-                  {
-                    wsf.playPause();
-                    event.preventDefault();
-                  }
-                  break;
+          if(wsf.params.playPauseWithSpaceBar) {
+            switch (event.keyCode) {
+                case 32: //spaceBar
+                    {
+                      wsf.playPause();
+                      event.preventDefault();
+                    }
+                    break;
+            }
           }
           return false;
         }
@@ -147,6 +137,9 @@ HTMLWidgets.widget({
           // attach the wsf object and the widget to the DOM
           container.wsf = wsf;
           container.widget = that;
+
+          // attach the wsf object and the widget to the DOM
+          container.wsf = wsf;
 
           // set listeners to events and pass data back to Shiny
           if (HTMLWidgets.shinyMode) {
@@ -178,7 +171,13 @@ HTMLWidgets.widget({
             });
 
             wsf.on('ready', function () {
+
+              //add regions passed by the user
+              wsf.clearRegions();
+              insertAnnotations(wsf.initialAnnotations);
+
               $('#'+elementId)[0].style.position = 'relative';
+              Shiny.onInputChange(elementId + "_is_ready", wsf.isReady);
               Shiny.onInputChange(elementId + "_wave_color", wsf.getWaveColor());
               Shiny.onInputChange(elementId + "_progress_color", wsf.getProgressColor());
               Shiny.onInputChange(elementId + "_cursor_color", wsf.getCursorColor());
@@ -230,7 +229,8 @@ HTMLWidgets.widget({
 
             wsf.on("region-removed", function(region) {
               Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
-              Shiny.onInputChange(elementId + "_selected_region:regionsDF", "{}");
+              Shiny.onInputChange(elementId + "_selected_region:regionsDF", "{start:null,end:null}");
+              region.update(0);
             });
 
             wsf.on("region-click", function(region) {
@@ -284,10 +284,6 @@ HTMLWidgets.widget({
 
         }
 
-        //add regions passed by the user
-        wsf.clearRegions();
-        insertAnnotations(x.annotations);
-
         //enable region labeller?
         if(x.settings.region_labeller) {
           region_labeller_display = 'block';
@@ -334,18 +330,34 @@ HTMLWidgets.widget({
       },
 
       ws_clear_regions: function() {
+        if (!wsf.regions.wavesurfer.isReady) {
+          setTimeout(() => this.ws_clear_regions(), 1000);
+          return;
+        }
         wsf.clearRegions();
       },
 
       ws_play: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_play(message), 1000);
+          return;
+        }
         wsf.play(message.start, message.end);
       },
 
       ws_pause: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_pause(), 1000);
+          return;
+        }
         wsf.pause();
       },
 
       ws_play_pause: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_play_pause(), 1000);
+          return;
+        }
         wsf.playPause();
       },
 
@@ -353,83 +365,155 @@ HTMLWidgets.widget({
         wsf.destroy();
       },
 
-      ws_cancel_ajax: function() {
-        wsf.cancelAjax();
-      },
-
       ws_set_mute: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_mute(message), 1000);
+          return;
+        }
         wsf.setMute(message.mute);
       },
 
       ws_stop: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_stop(), 1000);
+          return;
+        }
         wsf.stop();
       },
 
       ws_toggle_mute: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_toggle_mute(), 1000);
+          return;
+        }
         wsf.toggleMute();
       },
 
       ws_toggle_interaction: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_toggle_interaction(), 1000);
+          return;
+        }
         wsf.toggleInteraction();
       },
 
       ws_toggle_scroll: function() {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_toggle_scroll(), 1000);
+          return;
+        }
         wsf.toggleScroll();
       },
 
       ws_skip: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_skip(message), 1000);
+          return;
+        }
         wsf.skip(message.offset);
       },
 
       ws_skip_backward: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_skip_backward(message), 1000);
+          return;
+        }
         wsf.skipBackward(message.seconds);
       },
 
       ws_skip_forward: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_skip_forward(message), 1000);
+          return;
+        }
         wsf.skipForward(message.seconds);
       },
 
       ws_set_wave_color: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_wave_color(message), 1000);
+          return;
+        }
         wsf.setWaveColor(message.color);
       },
 
       ws_set_progress_color: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_progress_color(message), 1000);
+          return;
+        }
         wsf.setProgressColor(message.color);
       },
 
       ws_set_cursor_color: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_cursor_color(message), 1000);
+          return;
+        }
         wsf.setCursorColor(message.color);
       },
 
       ws_set_background_color: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_background_color(message), 1000);
+          return;
+        }
         wsf.setBackgroundColor(message.color);
       },
 
       ws_set_volume: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_volume(message), 1000);
+          return;
+        }
         wsf.setVolume(message.new_volume);
       },
 
       ws_set_playback_rate: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_playback_rate(message), 1000);
+          return;
+        }
         wsf.setPlaybackRate(message.rate);
       },
 
       ws_set_height: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_set_height(message), 1000);
+          return;
+        }
         wsf.setPlaybackRate(message.height);
       },
 
       ws_zoom: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_zoom(message), 1000);
+          return;
+        }
         wsf.zoom(message.px_per_sec);
       },
 
       ws_load: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_load(message), 1000);
+          return;
+        }
         wsf.load(message.url, message.peaks, message.preload, message.duration);
       },
 
       ws_seek_to: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_seek_to(message), 1000);
+          return;
+        }
         wsf.seekTo(message.progress);
       },
 
       ws_seek_and_center: function(message) {
+        if (!wsf.isReady) {
+          setTimeout(() => this.ws_seek_and_center(message), 1000);
+          return;
+        }
         wsf.seekAndCenter(message.progress);
       },
 
@@ -437,7 +521,11 @@ HTMLWidgets.widget({
         if(!wsf.getActivePlugins().minimap) {
           wsf.addPlugin(WaveSurfer.minimap.create(message)).initPlugin('minimap');
           $('#' + wsf.elementId)[0].style['margin-bottom'] = message.height.toString() + 'px';
-        } else {
+        }
+      },
+
+      ws_destroy_minimap: function() {
+        if(wsf.getActivePlugins().minimap) {
           wsf.destroyPlugin('minimap');
           $('#' + wsf.elementId)[0].style['margin-bottom'] = '0';
         }
@@ -451,7 +539,11 @@ HTMLWidgets.widget({
         if(!wsf.getActivePlugins().spectrogram) {
           message.container = '#' + wsf.elementId + '-spectrogram';
           wsf.addPlugin(WaveSurfer.spectrogram.create(message)).initPlugin('spectrogram');
-        } else {
+        }
+      },
+
+      ws_destroy_spectrogram: function() {
+        if(wsf.getActivePlugins().spectrogram) {
           wsf.destroyPlugin('spectrogram');
         }
       },
@@ -459,7 +551,11 @@ HTMLWidgets.widget({
       ws_cursor: function(message) {
         if(!wsf.getActivePlugins().cursor) {
           wsf.addPlugin(WaveSurfer.cursor.create(message)).initPlugin('cursor');
-        } else {
+        }
+      },
+
+      ws_destroy_cursor: function() {
+        if(wsf.getActivePlugins().cursor) {
           wsf.destroyPlugin('cursor');
         }
       },
@@ -468,7 +564,11 @@ HTMLWidgets.widget({
         if(!wsf.getActivePlugins().timeline) {
           let timelineContainer = '#' + wsf.elementId + '-timeline';
           wsf.addPlugin(WaveSurfer.timeline.create({container: timelineContainer})).initPlugin('timeline');
-        } else {
+        }
+      },
+
+      ws_destroy_timeline: function() {
+        if(wsf.getActivePlugins().timeline) {
           wsf.destroyPlugin('timeline');
         }
       },
@@ -525,7 +625,8 @@ if (HTMLWidgets.shinyMode) {
               'ws_minimap', 'ws_microphone', 'ws_regions',
               'ws_spectrogram', 'ws_cursor', 'ws_timeline',
               'ws_on', 'ws_un', 'ws_un_all', 'ws_microphone_stop', 'ws_microphone_start',
-              'ws_region_labeller'];
+              'ws_region_labeller', 'ws_set_cursor_color', 'ws_destroy_minimap',
+              'ws_destroy_spectrogram', 'ws_destroy_cursor', 'ws_destroy_timeline',];
 
   var addShinyHandler = function(fxn) {
     return function() {

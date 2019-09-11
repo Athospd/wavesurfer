@@ -11,7 +11,12 @@ ws_cursor(id, showTime = TRUE, opacity = 1,
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{customShowTimeStyle}{}
+\item{showTime}{a logical. If TRUE displays the time next to the cursor. Defaults to TRUE.}
+
+\item{opacity}{a numeric. The opacity/transparency. Default is 1.}
+
+\item{customShowTimeStyle}{a list with custom styles which are applied to the cursor time element, such
+'background-color', color, padding, 'font-size', etc.}
 }
 \description{
 ws_cursor

@@ -7,3 +7,12 @@ region.wavesurfer-region:hover, .region-selected{
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset, 0 0 8px rgba(82, 168, 236, 0.6);
 }
 
+region {
+  color: white;
+  text-shadow:
+   -1px -1px 0 #999,
+    1px -1px 0 #999,
+    -1px 1px 0 #999,
+     1px 1px 0 #999;
+  padding: 3px 6px;
+}

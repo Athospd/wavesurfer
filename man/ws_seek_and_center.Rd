@@ -9,7 +9,7 @@ ws_seek_and_center(id, progress)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{progress}{numeric.}
+\item{progress}{numeric. Seeks to a progress and centers view. [0..1] (0 = beginning, 1 = end).}
 }
 \description{
 ws_seek_and_center

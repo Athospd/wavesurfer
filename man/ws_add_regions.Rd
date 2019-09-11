@@ -9,7 +9,11 @@ ws_add_regions(id, annotations = NULL, color = NULL)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{annotations}{data.frame.}
+\item{annotations}{a data.frame with columns "sound_id" (character), "region_id"
+(character), "start" (numeric), "end" (numeric), "label" (character). The rows
+represents the annotated regions of the audio.}
+
+\item{color}{a character with the following format: 'rgb(r, g, b, a)'. Default is 'rgb(250, 200, 10, 0.5)'.}
 }
 \description{
 ws_add_regions

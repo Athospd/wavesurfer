@@ -9,7 +9,7 @@ ws_set_playback_rate(id, rate = NULL)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{rate}{numeric.}
+\item{rate}{numeric. The speed of playback. 0.5 is half speed, 1 is normal speed, 2 is double speed and so on.}
 }
 \description{
 ws_set_playback_rate

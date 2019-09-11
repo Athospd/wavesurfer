@@ -9,7 +9,8 @@ ws_regions(id, dragSelection = TRUE)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{dragSelection}{}
+\item{dragSelection}{a lofical. If TRUE lets you create regions by selecting areas
+of the waveform with mouse. Useful for annotations. Default is TRUE.}
 }
 \description{
 ws_regions

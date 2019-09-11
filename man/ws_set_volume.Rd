@@ -9,7 +9,7 @@ ws_set_volume(id, new_volume = NULL)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{new_volume}{numeric. From 0 to 1.}
+\item{new_volume}{numeric. The volume of the playback. 0 is mute, 1 is normal volume, 2 is twice loud and so on.}
 }
 \description{
 ws_set_volume
