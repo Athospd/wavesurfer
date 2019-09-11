@@ -34,26 +34,19 @@ ui <- fluidPage(
       actionButton("stop", "", icon = icon("stop")),
       actionButton("skip_backward", "", icon = icon("backward")),
       actionButton("skip_forward", "", icon = icon("forward")),
-      actionButton("mute", "", icon = icon("volume-off")),
-      sliderInput("volume", "Volume", min = 0, max = 100, value = 50)
+      actionButton("mute", "", icon = icon("volume-off"))
     ),
     column(
       width = 6,
       actionButton("save", "Save", icon = icon("save")),
       actionButton("suggest_regions", "Suggest regions", icon = icon("cut")),
-      actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt")),
-      tags$br(),
-      sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50)
+      actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt"))
     ),
     column(
       width = 10,
       tags$hr(),
       tags$h4("input$my_ws_regions"),
       tableOutput("regions"),
-      tags$hr(),
-      tags$hr(),
-      tags$h4("input$my_ws_selected_region"),
-      tableOutput("current_region"),
       tags$hr()
     )
   )

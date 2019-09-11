@@ -15,7 +15,9 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 An interactive soundwave player and visualizer with rich set of plugins.
 It works well with pipe (%\>%) and can be used in Shiny. It is an
-interface of  JavaScript library and it is based on  R package.
+interface of [‘wavesurfer.js’](https://wavesurfer-js.org) JavaScript
+library and it is based on [‘htmlwidgets’](http://www.htmlwidgets.org/)
+R package.
 
 ## Installation
 

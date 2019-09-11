@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 <img src = 'inst/img/ggwave.png'>
 
-An interactive soundwave player and visualizer with rich set of plugins. It works well with pipe (%>%) and can be used in Shiny. It is an interface of \href{https://wavesurfer-js.org}{'wavesurfer.js'} JavaScript library and it is based on \href{http://www.htmlwidgets.org/}{'htmlwidgets'} R package.
+An interactive soundwave player and visualizer with rich set of plugins. It works well with pipe (%>%) and can be used in Shiny. It is an interface of ['wavesurfer.js'](https://wavesurfer-js.org) JavaScript library and it is based on ['htmlwidgets'](http://www.htmlwidgets.org/) R package.
 
 ## Installation
 
