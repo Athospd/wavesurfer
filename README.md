@@ -103,5 +103,7 @@ The main actors that made this package possible were:
   - [This annotator](https://github.com/CrowdCurio/audio-annotator) that
     inspired me for make the spectrogram visualization for wavesurfer.js
     3.0.0. A lot of ctr+C/ctr+V too.
+  - [wikiaves.com.br](https://wikiaves.com.br) from where I took audio
+    examples for the showcases.
 
 Thank you very much for your work.
