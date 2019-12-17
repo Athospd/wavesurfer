@@ -4,7 +4,7 @@
 \alias{ws_region_labeller}
 \title{ws_region_labeller}
 \usage{
-ws_region_labeller(id, enable = TRUE)
+ws_region_labeller(id, labels, enable = TRUE)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

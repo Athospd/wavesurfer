@@ -9,7 +9,7 @@ ws_add_regions(id, annotations = NULL, color = NULL)
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
 
-\item{annotations}{a data.frame with columns "sound_id" (character), "region_id"
+\item{annotations}{a data.frame with columns "audio_id" (character), "region_id"
 (character), "start" (numeric), "end" (numeric), "label" (character). The rows
 represents the annotated regions of the audio.}
 

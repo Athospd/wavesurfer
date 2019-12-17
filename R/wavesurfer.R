@@ -62,7 +62,7 @@
 #' @param height Fixed height for timeline (in css units).
 #' @param elementId Use an explicit element ID for the widget (rather than an
 #' automatically generated one). Ignored when used in a Shiny app.
-#' @param annotations a data.frame with columns "sound_id" (character), "region_id"
+#' @param annotations a data.frame with columns "audio_id" (character), "region_id"
 #' (character), "start" (numeric), "end" (numeric), "label" (character). The rows
 #' represents the annotated regions of the audio.
 #' @param visualization a character. Either 'wave' or 'spectrogram'. The type of
@@ -91,11 +91,11 @@
 #'   library(wavesurfer)
 #'
 #'   # set the folders of input wavs and output annotations
-#'   wav_folder <- system.file("wav", package = "wavesurfer")
+#'   wavs_folder <- system.file("wav", package = "wavesurfer")
 #'   annotation_folder <- tempdir()
 #'
 #'   # make it available to shiny
-#'   shiny::addResourcePath("wav", wav_folder)
+#'   shiny::addResourcePath("wav", wavs_folder)
 #'
 #'   # Define UI for application that draws a histogram
 #'   ui <- fluidPage(
@@ -134,7 +134,7 @@
 #'     output$wav_files <- renderUI({
 #'       selectizeInput(
 #'         "audio", "Audio: ", width = "100%",
-#'         choices = list.files(wav_folder)
+#'         choices = list.files(wavs_folder)
 #'       )
 #'     })
 #'
@@ -173,19 +173,19 @@
 #'       req(!is.null(wav_name()))
 #'
 #'       annotations <- stringr::str_replace_all(wav_name(), "wav$", "rds")
-#'       regions <- input$my_ws_regions %>% dplyr::mutate(sound_id = wav_name())
+#'       regions <- input$my_ws_regions %>% dplyr::mutate(audio_id = wav_name())
 #'       readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
 #'     })
 #'
 #'     observeEvent(input$suggest_regions, {
 #'
-#'       wav <- tuneR::readWave(paste0(wav_folder, "/", wav_name()))
+#'       wav <- tuneR::readWave(paste0(wavs_folder, "/", wav_name()))
 #'
 #'       ## funcao do auto detector
 #'       auto_detect_partial <- purrr::partial(
 #'         warbleR::auto_detec,
 #'         X = data.frame(sound.files = wav_name(), selec = 1, start = 0, end = Inf),
-#'         path = wav_folder,
+#'         path = wavs_folder,
 #'         pb = FALSE
 #'       )
 #'       especies <- stringr::str_remove(wav_name(), "-[0-9]*\\.wav$")
@@ -199,7 +199,7 @@
 #'         suggested_annotations$label <- "(suggested region)"
 #'       }
 #'
-#'       names(suggested_annotations) <- c("sound_id", "region_id", "start", "end", "label")
+#'       names(suggested_annotations) <- c("audio_id", "region_id", "start", "end", "label")
 #'       ws_add_regions("my_ws", suggested_annotations)
 #'     })
 #'
@@ -280,9 +280,9 @@ wavesurfer <- function(audio = NULL,
   # mutating the format of the list
   if(!is.null(annotations)) {
     if(tidyr_new_interface()) {
-      annotations <- tidyr::nest(annotations, attributes = c(sound_id, region_id, label))
+      annotations <- tidyr::nest(annotations, attributes = c(audio_id, region_id, label))
     } else {
-      annotations <- tidyr::nest(annotations, sound_id, region_id, label, .key = "attributes")
+      annotations <- tidyr::nest(annotations, audio_id, region_id, label, .key = "attributes")
     }
   }
 
@@ -378,175 +378,265 @@ runExample <- function(example = c("annotator", "microphone", "plugins", "decora
 #'
 #' @import shiny
 #' @export
-annotator_app <- function(wavs_folder, annotations_folder = getwd()) {
+annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NULL) {
 
-  pasta_wavs <- wavs_folder
-  shiny::addResourcePath("wavs", pasta_wavs)
-  pasta_anotacoes <- annotations_folder
+  wavs_folder <- normalizePath(wavs_folder) # system.file("wav", package = "wavesurfer")
+  annotation_folder <- normalizePath(annotations_folder) #tempdir()
 
-  # Define UI for application that draws a histogram
+
+
+  # make it available to shiny
+  shiny::addResourcePath("wav", wavs_folder)
+
   ui <- fluidPage(
 
     # Application title
-    titlePanel("Anotador"),
+    titlePanel("Annotator"),
+    fluidRow(
+      column(
+        width = 12,
+        tags$p(tags$strong("Wavs Folder:"), wavs_folder),
+        tags$p(tags$strong("Annotations Folder:"), annotation_folder)
+      ),
+      column(
+        width = 12,
+        uiOutput("audio_ui"),
+        shinyWidgets::materialSwitch("spectrogram", "Bigger spectrogram", inline = TRUE)
+      )
+    ),
 
-    uiOutput("especies"),
-    uiOutput("arquivo_wav"),
-
-    actionButton("minimap", "Minimap", icon = icon("map")),
-    actionButton("spectrogram", "spectrogram", icon = icon("chart")),
-    actionButton("regions", "Regions", icon = icon("square")),
-    actionButton("cursor", "Cursor", icon = icon("pointer")),
-    actionButton("timeline", "Timeline", icon = icon("time")),
-    tags$br(),
-
-    wavesurferOutput("meu_ws", height = "100%"),
-    actionButton("play", "Play", icon = icon("play")),
-    actionButton("pause", "Pause", icon = icon("pause")),
-    actionButton("mute", "Mute", icon = icon("times")),
-    actionButton("stop", "Stop", icon = icon("stop")),
-    actionButton("save", "Save", icon = icon("save")),
-    actionButton("sugerir_regioes", "Sugerir regiões", icon = icon("cut")),
-    tags$br(),
-    sliderInput("zoom", "Zoom", min = 1, max = 1000, value = 50),
-    tags$br(),
-    verbatimTextOutput("regions"),
-    verbatimTextOutput("current_region"),
-    verbatimTextOutput("regions_class")
+    fluidRow(
+      column(
+        width = 12,
+        wavesurferOutput("my_ws")
+      ),
+      column(
+        width = 6,
+        actionButton("play", "", icon = icon("play")),
+        actionButton("pause", "", icon = icon("pause")),
+        actionButton("stop", "", icon = icon("stop")),
+        actionButton("skip_backward", "", icon = icon("backward")),
+        actionButton("skip_forward", "", icon = icon("forward")),
+        actionButton("mute", "", icon = icon("volume-off"))
+      ),
+      column(
+        width = 6,
+        actionButton("save", "Save", icon = icon("save")),
+        shinyWidgets::materialSwitch("auto_save", "Autosave when switching audios", inline = TRUE),
+        actionButton("suggest_regions", "Suggest regions", icon = icon("cut")),
+        actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt"))
+      )
+    ),
+    tags$hr(),
+    tabsetPanel(
+      tabPanel(
+        title = "Audios and regions",
+        fluidRow(
+          column(
+            width = 4,
+            reactable::reactableOutput("audios")
+          ),
+          column(
+            width = 7,
+            offset = 1,
+            reactable::reactableOutput("regions")
+          )
+        )
+      ),
+      tabPanel(
+        title = "debug",
+        verbatimTextOutput("input")
+      )
+    ),
+    tags$hr()
   )
 
-  # Define server logic required to draw a histogram
+
   server <- function(input, output, session) {
 
-    passaros <- readr::read_rds("/media/athos/DATA/OneDrive/Documents/mestrado/data/passaros.rds")
-    wav_name <- reactive({stringr::str_replace(input$audio, "^wavs/", "")})
-    output$especies <- renderUI({
-      selectizeInput(
-        "especie",
-        "Espécie: ",
-        choices = passaros$especie,
-        width = "100%"
+    update_audio_df <- function() {
+
+      tibble::tibble(
+        file_name = list.files(wavs_folder),
+        annotated = file_name %in% stringr::str_replace_all(list.files(annotation_folder, ".rds$"), "rds$", "wav")
       )
+    }
+
+    audio_df <- reactiveVal(value = update_audio_df())
+    selected_audio <- reactiveVal(as.character(update_audio_df()[1,"file_name", drop = TRUE]))
+
+    output$audio_ui <- renderUI({
+      shiny::p(shiny::strong("Current audio: "), selected_audio())
     })
 
-    output$arquivo_wav <- renderUI({
-      req(!is.null(input$especie))
+    output$my_ws <- renderWavesurfer({
+      req(!is.null(selected_audio()))
 
-      audios_nao_anotados <- paste0("wavs/", list.files(pasta_wavs, pattern = input$especie))
-      audios_anotados <- paste0("wavs/", stringr::str_replace(list.files(paste0(pasta_anotacoes)), "rds$", "wav"))
-      audios_nao_anotados <- audios_nao_anotados[!audios_nao_anotados %in% audios_anotados]
+      # look if there is regions already annotated
+      annotations_file <- stringr::str_replace_all(stringr::str_replace_all(selected_audio(), "wav$", "rds"), "^.*/", "")
+      annotations_file <- paste0(annotation_folder, "/", annotations_file)
 
-      selectizeInput(
-        "audio",
-        "Audio: ",
-        choices = audios_nao_anotados,
-        width = "100%"
-      )
-    })
-
-    output$meu_ws <- renderWavesurfer({
-      req(!is.null(input$audio))
-      annotations_path <- stringr::str_replace_all(stringr::str_replace_all(input$audio, "wav$", "rds"), "^wavs/", "")
-      annotations_path <- paste0(pasta_anotacoes, annotations_path)
-
-      if(file.exists(annotations_path)) {
-        annotations_df <- readr::read_rds(annotations_path)
+      if(file.exists(annotations_file)) {
+        annotations_df <- readr::read_rds(annotations_file)
       } else {
         annotations_df <- NULL
       }
 
       wavesurfer(
-        input$audio,
+        paste0("wav/", selected_audio()),
         annotations = annotations_df,
-        visualization = 'spectrogram',
-        # barWidth = 2
+        visualization = 'spectrogram'
       ) %>%
-        ws_region_labeller()
+        ws_annotator(labels = labels) %>%
+        ws_minimap(height = 100, waveColor = "#F8766D", progressColor = "#00BFC4") %>%
+        ws_cursor()
     })
 
-    observeEvent(input$play, {
-      ws_play("meu_ws")
-    })
+    # controllers
+    observeEvent(input$play, ws_play("my_ws"))
+    observeEvent(input$pause, ws_pause("my_ws"))
+    observeEvent(input$mute, ws_toggle_mute("my_ws"))
+    observeEvent(input$skip_forward, ws_skip_forward("my_ws", 3))
+    observeEvent(input$skip_backward, ws_skip_backward("my_ws", 3))
+    observeEvent(input$stop, ws_stop("my_ws"))
+    observe({ws_set_volume("my_ws", input$volume/50 )})
+    observe({ws_zoom("my_ws", input$zoom )})
 
-    observeEvent(input$pause, {
-      ws_pause("meu_ws")
-    })
+    # save
+    save <- function(audio_file_name, regions_df) {
+      annotations <- stringr::str_replace_all(audio_file_name, "wav$", "rds")
+      regions <- regions_df %>% dplyr::mutate(audio_id = audio_file_name)
+      readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
+    }
 
-    observeEvent(input$mute, {
-      ws_toggle_mute("meu_ws")
-    })
-
-    observe({
-      ws_zoom("meu_ws", input$zoom)
-    })
-
-    observeEvent(input$stop, {
-      ws_stop("meu_ws")
-    })
-
-    observeEvent(input$minimap, {
-      ws_minimap("meu_ws")
-    })
-
-    observeEvent(input$spectrogram, {
-      ws_spectrogram("meu_ws")
-    })
-
-    observeEvent(input$timeline, {
-      ws_timeline("meu_ws")
-    })
-
-    observeEvent(input$cursor, {
-      ws_cursor("meu_ws")
-    })
-
-    observeEvent(input$regions, {
-      ws_regions("meu_ws")
-    })
-
+    # delete
+    delete <- function(audio_file_name) {
+      annotations <- stringr::str_replace_all(audio_file_name, "wav$", "rds")
+      file.remove(paste0(annotation_folder, "/", annotations))
+    }
 
     observeEvent(input$save, {
-      req(!is.null(wav_name()))
-      annotations <- stringr::str_replace_all(stringr::str_replace_all(input$audio, "wav$", "rds"), "^wavs/", "")
-      regions <- input$meu_ws_regions %>% dplyr::mutate(sound_id = wav_name())
-      readr::write_rds(x = regions, path = paste0(pasta_anotacoes, annotations))
+      req(!is.null(selected_audio()))
+
+      save(selected_audio(), input$my_ws_regions)
+
+      # update audio_df
+      audio_df(update_audio_df())
     })
 
-    observeEvent(input$sugerir_regioes, {
 
-      wav <- tuneR::readWave(paste0(pasta_wavs, wav_name()))
+
+    # suggest regions
+    observeEvent(input$suggest_regions, {
+
+      wav <- tuneR::readWave(paste0(wavs_folder, "/", selected_audio()))
 
       ## funcao do auto detector
       auto_detect_partial <- purrr::partial(
         warbleR::auto_detec,
-        X = data.frame(sound.files = wav_name(), selec = 1, start = 0, end = Inf),
-        path = pasta_wavs,
+        X = data.frame(sound.files = selected_audio(), selec = 1, start = 0, end = Inf),
+        path = wavs_folder,
         pb = FALSE
       )
-      params_do_auto_detec <- passaros$parametros_do_auto_detect[[input$especie]]
-      ## segmentacoes encontradas
-      suggested_annotations <- do.call(auto_detect_partial, params_do_auto_detec)
-      suggested_annotations$sound.files <- wav_name()
+      especies <- stringr::str_remove(selected_audio(), "-[0-9]*\\.wav$")
+      auto_detect_parameters <- wavesurfer::birds$auto_detect_parameters[[especies]]
+
+      ## segments founded
+      suggested_annotations <- do.call(auto_detect_partial, auto_detect_parameters)
+      suggested_annotations$sound.files <- selected_audio()
+
       if(is.null(suggested_annotations$label)) {
-        suggested_annotations$label <- "(unlabeled)"
+        suggested_annotations$label <- "(suggested region)"
       }
-      suggested_annotations <- suggested_annotations %>% dplyr::mutate(label = sample(letters, size = length(label), replace = TRUE))
-      names(suggested_annotations) <- c("sound_id", "region_id", "start", "end", "label")
-      ws_add_regions("meu_ws", suggested_annotations)
+
+      names(suggested_annotations) <- c("audio_id", "id", "start", "end", "label")
+      ws_add_regions("my_ws", suggested_annotations)
     })
 
-    output$regions_class <- renderPrint({
+    # clear all regions
+    observeEvent(input$clear_regions, {
+      ws_clear_regions("my_ws")
+      delete(selected_audio())
+      audio_df(update_audio_df())
+    })
+
+    # bigger spectrogram
+    observe({
+      if(input$spectrogram) {
+        ws_spectrogram("my_ws")
+      } else {
+        ws_destroy_spectrogram("my_ws")
+      }
+    })
+
+    # the current region selected
+    output$current_region <- reactable::renderReactable({
+      input$my_ws_selected_region %>% reactable::reactable()
+    })
+
+    # table of all regions
+    output$regions <- reactable::renderReactable({
+      req(nrow(input$my_ws_regions) > 0)
+
+      input$my_ws_regions %>%
+        reactable::reactable(
+          selectionId = "regions_df_selected_region",
+          resizable = TRUE,
+          showPageSizeOptions = TRUE,
+          onClick = "select",
+          highlight = TRUE,
+          compact = TRUE,
+          selection = "single",
+          columns = list(
+            audio_id = reactable::colDef("audio_id", minWidth = 260),
+            label = reactable::colDef("label", minWidth = 210),
+            region_id = reactable::colDef("region_id", minWidth = 140),
+            start = reactable::colDef("start", format = reactable::colFormat(digits = 2), width = 80),
+            end = reactable::colDef("end", format = reactable::colFormat(digits = 2), width = 80)
+          )
+        )
+    })
+
+    # table of audios from wavs_folder
+    output$audios <- reactable::renderReactable({
+      req(!is.null(audio_df()))
+      audio_df() %>%
+        reactable::reactable(
+          selectionId = "audio_df_selected_row",
+          resizable = TRUE,
+          showPageSizeOptions = TRUE,
+          onClick = "select",
+          highlight = TRUE,
+          compact = TRUE,
+          selection = "single",
+          filterable = TRUE,
+          rowStyle = reactable::JS("function(a, b) {if(a.row.annotated) return {backgroundColor: '#8cff57'}}"),
+          columns = list(
+            annotated = reactable::colDef("Annotated", width = 100)
+          )
+        )
+    })
+
+    # when audio is switched
+    observeEvent(input$audio_df_selected_row, {
+
+      # if autosave is TRUE
+      if(isolate(input$auto_save)) {
+        save(isolate(selected_audio()), isolate(input$my_ws_regions))
+      }
+
+      selected_audio(audio_df() %>% dplyr::slice(as.numeric(input$audio_df_selected_row)) %>% dplyr::pull(file_name))
+    })
+
+
+
+    output$input <- renderPrint({
       reactiveValuesToList(input)
-    })
-
-    output$current_region <- renderPrint({
-      input$meu_ws_selected_region
-    })
-    output$regions <- renderPrint({
-      input$meu_ws_regions
     })
   }
 
   # Run the application
   shinyApp(ui = ui, server = server)
+
+
 }

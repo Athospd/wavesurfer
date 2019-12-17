@@ -152,7 +152,7 @@ server <- function(input, output, session) {
             suggested_annotations$label <- "(unlabeled)"
         }
         suggested_annotations <- suggested_annotations %>% dplyr::mutate(label = sample(letters, size = length(label), replace = TRUE))
-        names(suggested_annotations) <- c("sound_id", "region_id", "start", "end", "label")
+        names(suggested_annotations) <- c("audio_id", "region_id", "start", "end", "label")
         ws_add_regions("meu_ws", suggested_annotations)
     })
 

@@ -4,7 +4,7 @@
 \alias{annotator_app}
 \title{anotador_app}
 \usage{
-annotator_app(wavs_folder, annotations_folder = getwd())
+annotator_app(wavs_folder, annotations_folder = getwd(), labels = NULL)
 }
 \arguments{
 \item{annotations_folder}{}

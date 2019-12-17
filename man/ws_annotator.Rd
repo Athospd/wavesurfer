@@ -4,7 +4,7 @@
 \alias{ws_annotator}
 \title{ws_annotator}
 \usage{
-ws_annotator(id)
+ws_annotator(id, labels = NULL)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

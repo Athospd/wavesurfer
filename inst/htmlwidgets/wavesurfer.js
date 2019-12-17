@@ -95,7 +95,7 @@ HTMLWidgets.widget({
 
         function get_region_data(region) {
           return {
-            sound_id: region.attributes.sound_id ? region.attributes.sound_id.toString() : x.audio,
+            audio_id: region.attributes.audio_id ? region.attributes.audio_id.toString() : x.audio,
             region_id: region.id,
             start: region.start,
             end: region.end,
@@ -105,10 +105,17 @@ HTMLWidgets.widget({
 
         // insert annotations in batch
         function insertAnnotations(annotations) {
+          if (!wsf.regions.wavesurfer.isReady) {
+            setTimeout(() => wsf.insertAnnotations(annotations), 100);
+            return;
+          }
           annotations = HTMLWidgets.dataframeToD3(annotations);
+
           if (typeof annotations !== 'undefined') {
             annotations.forEach(function(obj) {
               obj.color = 'rgb(217, 0, 163, 0.5)';
+              obj.id = obj.attributes.region_id[0];
+              wsf.seekTo(0.1);
               wsf.addRegion(obj);
             });
           }
@@ -601,12 +608,21 @@ HTMLWidgets.widget({
       },
 
       ws_region_labeller: function(message) {
+        var region_labeller_input = $('#'+elementId+'_region_labeller');
+
         if(message.enable) {
           region_labeller_display = 'block';
         } else {
           region_labeller_display = 'none';
         }
-        $('#'+elementId+'_region_labeller').closest('.form-group')[0].style.display = region_labeller_display;
+        region_labeller_input.closest('.form-group')[0].style.display = region_labeller_display;
+
+        if(message.labels) {
+          message.labels.forEach((lbl) => {
+            region_labeller_input[0].selectize.addOption({value: lbl, label: lbl});
+            region_labeller_input[0].selectize.addItem(lbl, 1);
+          });
+        }
       }
     };
   }

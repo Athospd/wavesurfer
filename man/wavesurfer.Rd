@@ -96,7 +96,7 @@ cursor. Default is '#999999'.}
 \item{elementId}{Use an explicit element ID for the widget (rather than an
 automatically generated one). Ignored when used in a Shiny app.}
 
-\item{annotations}{a data.frame with columns "sound_id" (character), "region_id"
+\item{annotations}{a data.frame with columns "audio_id" (character), "region_id"
 (character), "start" (numeric), "end" (numeric), "label" (character). The rows
 represents the annotated regions of the audio.}
 
@@ -140,11 +140,11 @@ if (interactive()) {
   library(wavesurfer)
 
   # set the folders of input wavs and output annotations
-  wav_folder <- system.file("wav", package = "wavesurfer")
+  wavs_folder <- system.file("wav", package = "wavesurfer")
   annotation_folder <- tempdir()
 
   # make it available to shiny
-  shiny::addResourcePath("wav", wav_folder)
+  shiny::addResourcePath("wav", wavs_folder)
 
   # Define UI for application that draws a histogram
   ui <- fluidPage(
@@ -183,7 +183,7 @@ if (interactive()) {
     output$wav_files <- renderUI({
       selectizeInput(
         "audio", "Audio: ", width = "100\%",
-        choices = list.files(wav_folder)
+        choices = list.files(wavs_folder)
       )
     })
 
@@ -222,19 +222,19 @@ if (interactive()) {
       req(!is.null(wav_name()))
 
       annotations <- stringr::str_replace_all(wav_name(), "wav$", "rds")
-      regions <- input$my_ws_regions \%>\% dplyr::mutate(sound_id = wav_name())
+      regions <- input$my_ws_regions \%>\% dplyr::mutate(audio_id = wav_name())
       readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
     })
 
     observeEvent(input$suggest_regions, {
 
-      wav <- tuneR::readWave(paste0(wav_folder, "/", wav_name()))
+      wav <- tuneR::readWave(paste0(wavs_folder, "/", wav_name()))
 
       ## funcao do auto detector
       auto_detect_partial <- purrr::partial(
         warbleR::auto_detec,
         X = data.frame(sound.files = wav_name(), selec = 1, start = 0, end = Inf),
-        path = wav_folder,
+        path = wavs_folder,
         pb = FALSE
       )
       especies <- stringr::str_remove(wav_name(), "-[0-9]*\\\\.wav$")
@@ -248,7 +248,7 @@ if (interactive()) {
         suggested_annotations$label <- "(suggested region)"
       }
 
-      names(suggested_annotations) <- c("sound_id", "region_id", "start", "end", "label")
+      names(suggested_annotations) <- c("audio_id", "region_id", "start", "end", "label")
       ws_add_regions("my_ws", suggested_annotations)
     })
 

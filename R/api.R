@@ -2,7 +2,7 @@
 #'
 #' @param id wavesurfer object or a character of its respective element id.
 #'
-#' @param annotations a data.frame with columns "sound_id" (character), "region_id"
+#' @param annotations a data.frame with columns "audio_id" (character), "region_id"
 #' (character), "start" (numeric), "end" (numeric), "label" (character). The rows
 #' represents the annotated regions of the audio.
 #' @param color a character with the following format: 'rgb(r, g, b, a)'. Default is 'rgb(250, 200, 10, 0.5)'.
@@ -11,9 +11,9 @@
 ws_add_regions <- function(id, annotations = NULL, color = NULL) {
   if(!missing(annotations) & !all(is.null(annotations$region_id))) {
     if(tidyr_new_interface()) {
-      annotations <- tidyr::nest(annotations, attributes = c(sound_id, region_id, label))
+      annotations <- tidyr::nest(annotations, attributes = c(audio_id, region_id, label))
     } else {
-      annotations <- tidyr::nest(annotations, sound_id, region_id, label, .key = "attributes")
+      annotations <- tidyr::nest(annotations, audio_id, region_id, label, .key = "attributes")
     }
 
     if(!is.null(color)) {
@@ -492,7 +492,7 @@ ws_microphone_stop <- function(id) {
 #' @param enable a logical. Default is TRUE.
 #'
 #' @export
-ws_region_labeller <- function(id, enable = TRUE) {
+ws_region_labeller <- function(id, labels, enable = TRUE) {
   method <- "ws_region_labeller"
   callJS()
 }
@@ -502,6 +502,6 @@ ws_region_labeller <- function(id, enable = TRUE) {
 #' @param id wavesurfer object or a character of its respective element id.
 #'
 #' @export
-ws_annotator <- function(id) {
-  ws_region_labeller(ws_regions(id))
+ws_annotator <- function(id, labels = NULL) {
+  ws_region_labeller(ws_regions(id), labels = labels)
 }
