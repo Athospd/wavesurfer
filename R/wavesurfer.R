@@ -379,16 +379,18 @@ runExample <- function(example = c("annotator", "microphone", "plugins", "decora
 #' @import shiny
 #' @export
 annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NULL) {
-
   wavs_folder <- normalizePath(wavs_folder) # system.file("wav", package = "wavesurfer")
   annotation_folder <- normalizePath(annotations_folder) #tempdir()
-
-
 
   # make it available to shiny
   shiny::addResourcePath("wav", wavs_folder)
 
   ui <- fluidPage(
+    tags$head(
+      tags$style(type="text/css", ".inline label{ display: table-cell; text-align: left; vertical-align: middle; }
+                 .inline .form-group{display: table-row;}")
+    ),
+    shinyjs::useShinyjs(),
 
     # Application title
     titlePanel("Annotator"),
@@ -401,7 +403,9 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
       column(
         width = 12,
         uiOutput("audio_ui"),
-        shinyWidgets::materialSwitch("spectrogram", "Bigger spectrogram", inline = TRUE)
+        shinyWidgets::materialSwitch("spectrogram", "Bigger spectrogram", inline = TRUE),
+        shinyWidgets::materialSwitch("auto_save", "Autosave when switching audios", inline = TRUE),
+        actionButton("save", "Save", icon = icon("save"), class = "btn-success")
       )
     ),
 
@@ -421,10 +425,33 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
       ),
       column(
         width = 6,
-        actionButton("save", "Save", icon = icon("save")),
-        shinyWidgets::materialSwitch("auto_save", "Autosave when switching audios", inline = TRUE),
-        actionButton("suggest_regions", "Suggest regions", icon = icon("cut")),
-        actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt"))
+        tags$div(
+          tags$div(
+            style = "display: inline-block;",
+            shinyWidgets::dropdownButton(
+              circle = FALSE, status = "success", icon = icon("gear"), size = "default",
+              tags$h4("Setup"),
+              sliderInput("wl", "Window Length: ", 64, 1024, 512, 2),
+              sliderInput("ovlp", "Overlap: ", 0, 50, 50, 2, post = "%"),
+              sliderInput("threshold", "Threshold: ", 0, 100, 15, 1),
+              sliderInput("ssmooth", "Ssmooth: ", 100, 10000, 1500, 100),
+              sliderInput("mindur", "Min duration (s): ", 0.05, 10, 0.2, 0.05),
+              sliderInput("maxdur", "Max duration (s): ", 0.05, 10, 0.8, 0.05),
+              sliderInput("bp", "Band pass (khz): ", 0, 10, c(1.20, 1.55), 0.01),
+              selectizeInput("envt", "Envelope: ", choices = c("Hilbert" = "hil", "Absolute" = "abs"))
+            )
+          ),
+          tags$div(
+            style = "display: inline-block;",
+            actionButton("suggest_regions", "Suggest regions", icon = icon("cut"), style = "display: inline-block;",),
+            actionButton("clear_regions", "Clear all regions", icon = icon("undo-alt"), style = "display: inline-block;",),
+            tags$div(style = "display: inline;", class = "inline", textInput("default_label_of_suggested_regions", "Default label: ", "suggested_region"))
+          )
+        ),
+        tags$p(id = "suggest_regions_msg_wait", "looking for regions, please wait...", style = "display: inline; vertical-align: sub;", class = "text-warning") %>% shinyjs::hidden(),
+        tags$p(id = "suggest_regions_msg_success", "Done!", style = "display: inline; vertical-align: sub;", class = "text-success") %>% shinyjs::hidden(),
+        tags$p(id = "suggest_regions_msg_fail", "Done. No regions found.", style = "display: inline; vertical-align: sub;", class = "text-danger") %>% shinyjs::hidden()
+
       )
     ),
     tags$hr(),
@@ -455,7 +482,6 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
   server <- function(input, output, session) {
 
     update_audio_df <- function() {
-
       tibble::tibble(
         file_name = list.files(wavs_folder),
         annotated = file_name %in% stringr::str_replace_all(list.files(annotation_folder, ".rds$"), "rds$", "wav")
@@ -506,7 +532,10 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
     save <- function(audio_file_name, regions_df) {
       annotations <- stringr::str_replace_all(audio_file_name, "wav$", "rds")
       regions <- regions_df %>% dplyr::mutate(audio_id = audio_file_name)
-      readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
+
+      if(nrow(regions_df) > 0) {
+        readr::write_rds(x = regions, path = paste0(annotation_folder, "/", annotations))
+      }
     }
 
     # delete
@@ -524,33 +553,50 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
       audio_df(update_audio_df())
     })
 
-
+    observeEvent(selected_audio(), {
+      shinyjs::hide("suggest_regions_msg_wait")
+      shinyjs::hide("suggest_regions_msg_fail")
+      shinyjs::hide("suggest_regions_msg_success")
+    })
 
     # suggest regions
     observeEvent(input$suggest_regions, {
+      shinyjs::disable("suggest_regions")
+      shinyjs::show("suggest_regions_msg_wait")
+      shinyjs::hide("suggest_regions_msg_fail")
+      shinyjs::hide("suggest_regions_msg_success")
 
       wav <- tuneR::readWave(paste0(wavs_folder, "/", selected_audio()))
 
-      ## funcao do auto detector
-      auto_detect_partial <- purrr::partial(
-        warbleR::auto_detec,
+      ## segments founded
+      suggested_annotations <- warbleR::auto_detec(
         X = data.frame(sound.files = selected_audio(), selec = 1, start = 0, end = Inf),
         path = wavs_folder,
-        pb = FALSE
+        pb = FALSE,
+        bp = input$bp,
+        envt = input$envt,
+        mindur = input$mindur,
+        maxdur = input$maxdur,
+        ssmooth = input$ssmooth,
+        threshold = input$threshold,
+        wl = input$wl,
+        ovlp = input$ovlp,
+        img = FALSE
       )
-      especies <- stringr::str_remove(selected_audio(), "-[0-9]*\\.wav$")
-      auto_detect_parameters <- wavesurfer::birds$auto_detect_parameters[[especies]]
 
-      ## segments founded
-      suggested_annotations <- do.call(auto_detect_partial, auto_detect_parameters)
-      suggested_annotations$sound.files <- selected_audio()
+      suggested_annotations$label <- input$default_label_of_suggested_regions
+      names(suggested_annotations) <- c("audio_id", "region_id", "start", "end", "label")
+      suggested_annotations$region_id <- replicate(nrow(suggested_annotations), tempfile(tmpdir = "", pattern = "wavesurfer_") %>% substr(2, 23))
 
-      if(is.null(suggested_annotations$label)) {
-        suggested_annotations$label <- "(suggested region)"
+      shinyjs::hide("suggest_regions_msg_wait")
+      shinyjs::enable("suggest_regions")
+
+      if(!any(is.na(suggested_annotations$start))) {
+        ws_add_regions("my_ws", suggested_annotations)
+        shinyjs::show("suggest_regions_msg_success")
+      } else {
+        shinyjs::show("suggest_regions_msg_fail")
       }
-
-      names(suggested_annotations) <- c("audio_id", "id", "start", "end", "label")
-      ws_add_regions("my_ws", suggested_annotations)
     })
 
     # clear all regions
@@ -569,10 +615,6 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
       }
     })
 
-    # the current region selected
-    output$current_region <- reactable::renderReactable({
-      input$my_ws_selected_region %>% reactable::reactable()
-    })
 
     # table of all regions
     output$regions <- reactable::renderReactable({
@@ -610,6 +652,7 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
           compact = TRUE,
           selection = "single",
           filterable = TRUE,
+          defaultPageSize = 7,
           rowStyle = reactable::JS("function(a, b) {if(a.row.annotated) return {backgroundColor: '#8cff57'}}"),
           columns = list(
             annotated = reactable::colDef("Annotated", width = 100)
@@ -621,8 +664,11 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
     observeEvent(input$audio_df_selected_row, {
 
       # if autosave is TRUE
-      if(isolate(input$auto_save)) {
-        save(isolate(selected_audio()), isolate(input$my_ws_regions))
+      if((input$auto_save)) {
+        save((selected_audio()), (input$my_ws_regions))
+
+        # update audio_df
+        audio_df(update_audio_df())
       }
 
       selected_audio(audio_df() %>% dplyr::slice(as.numeric(input$audio_df_selected_row)) %>% dplyr::pull(file_name))
@@ -636,7 +682,7 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
   }
 
   # Run the application
-  shinyApp(ui = ui, server = server)
+  shinyApp(ui = ui, server = server, options = list(launch.browser = TRUE))
 
 
 }

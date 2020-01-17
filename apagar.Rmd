@@ -1,10 +1,13 @@
 ---
-output: github_document
+title: "WaveSurfer for R"
+author: "Athos Petri Damiani"
+output: pdf_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
+library(knitr)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -13,23 +16,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# wavesurfer
-
-<!-- badges: start -->
-[![CRAN status](https://www.r-pkg.org/badges/version/wavesurfer)](https://CRAN.R-project.org/package=wavesurfer)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-<!-- badges: end -->
-
 <img src = 'inst/img/ggwave.png'>
 
 An interactive soundwave player and visualizer with rich set of plugins. It works well with pipe (%>%) and can be used in Shiny. It is an interface of ['wavesurfer.js'](https://wavesurfer-js.org) JavaScript library and it is based on ['htmlwidgets'](http://www.htmlwidgets.org/) R package.
 
-## Installation
-
-``` r
-# install.packages("remotes")
-remotes::install_github("Athospd/wavesurfer")
-```
 ## Examples
 
 Usage at shiny app:
@@ -68,7 +58,11 @@ live app: [athos.shinyapps.io/wavesurfer_annotator/](https://athos.shinyapps.io/
 wavesurfer::runExample("annotator")
 ```
 
-<img src="inst/img/annotator.gif">
+```{r, echo = FALSE}
+# All defaults
+include_graphics("inst/img/b.png")
+```
+<img src="inst/img/b.png">
 
 ### Plugins
 
@@ -78,7 +72,11 @@ live app: [athos.shinyapps.io/wavesurfer_plugins/](https://athos.shinyapps.io/wa
 wavesurfer::runExample("plugins")
 ```
 
-<img src="inst/img/plugins.gif">
+```{r, echo = FALSE}
+# All defaults
+include_graphics("inst/img/a.png")
+```
+<img src="inst/img/a.png">
 
 ### Wave Decorations
 
@@ -88,7 +86,11 @@ live app: [athos.shinyapps.io/wavesurfer_decoration/](https://athos.shinyapps.io
 wavesurfer::runExample("decoration")
 ```
 
-<img src="inst/img/decoration.gif">
+```{r, echo = FALSE}
+# All defaults
+include_graphics("inst/img/c.png")
+```
+<img src="inst/img/c.png">
 
 
 ## Acknowledgement

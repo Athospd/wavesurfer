@@ -82,6 +82,7 @@ HTMLWidgets.widget({
         //get regions data to pass to R
         function get_regions_data(regionsList, e) {
             var current_regions = regionsList;
+
             if(Object.keys(current_regions).length) {
               var regions_data = JSON.stringify(
               Object.keys(current_regions).map(function (id) {
@@ -95,7 +96,7 @@ HTMLWidgets.widget({
 
         function get_region_data(region) {
           return {
-            audio_id: region.attributes.audio_id ? region.attributes.audio_id.toString() : x.audio,
+            audio_id: region.attributes.audio_id ? region.attributes.audio_id.toString() : region.wavesurfer.audioUrl,
             region_id: region.id,
             start: region.start,
             end: region.end,
@@ -109,11 +110,13 @@ HTMLWidgets.widget({
             setTimeout(() => wsf.insertAnnotations(annotations), 100);
             return;
           }
+          debugger;
           annotations = HTMLWidgets.dataframeToD3(annotations);
 
           if (typeof annotations !== 'undefined') {
             annotations.forEach(function(obj) {
               obj.color = 'rgb(217, 0, 163, 0.5)';
+              obj.audio_id = obj.attributes.audio_id;
               obj.id = obj.attributes.region_id[0];
               wsf.seekTo(0.1);
               wsf.addRegion(obj);
@@ -197,6 +200,7 @@ HTMLWidgets.widget({
               Shiny.onInputChange(elementId + "_playback_rate", wsf.getPlaybackRate());
 
               if(wsf.getActivePlugins().regions) {
+
                 let regions = get_regions_data(wsf.regions.list);
                 regions = regions ? regions : '{}';
                 Shiny.onInputChange(elementId + "_regions:regionsDF", regions);
@@ -224,6 +228,7 @@ HTMLWidgets.widget({
             });
 
             wsf.on("region-updated", function(region, e) {
+
               Shiny.onInputChange(elementId + "_selected_region:regionsDF", JSON.stringify(get_region_data(region)));
               let regions = get_regions_data(wsf.regions.list);
               regions = regions ? regions : '{}';
@@ -235,6 +240,7 @@ HTMLWidgets.widget({
             });
 
             wsf.on("region-removed", function(region) {
+
               Shiny.onInputChange(elementId + "_regions:regionsDF", get_regions_data(wsf.regions.list));
               Shiny.onInputChange(elementId + "_selected_region:regionsDF", "{start:null,end:null}");
               region.update(0);
@@ -333,6 +339,7 @@ HTMLWidgets.widget({
       },
 
       ws_add_regions: function(message) {
+        debugger;
         wsf.insertAnnotations(message.annotations);
       },
 

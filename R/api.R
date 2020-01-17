@@ -9,7 +9,7 @@
 #'
 #' @export
 ws_add_regions <- function(id, annotations = NULL, color = NULL) {
-  if(!missing(annotations) & !all(is.null(annotations$region_id))) {
+  if(!missing(annotations)) {
     if(tidyr_new_interface()) {
       annotations <- tidyr::nest(annotations, attributes = c(audio_id, region_id, label))
     } else {

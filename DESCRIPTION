@@ -25,7 +25,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    shinyWidgets,
     colourpicker,
     tuneR
 RoxygenNote: 6.1.1
@@ -37,5 +36,7 @@ Imports:
     methods,
     shiny,
     tidyr,
-    tibble
+    tibble,
+    shinyjs,
+    shinyWidgets
 VignetteBuilder: knitr
