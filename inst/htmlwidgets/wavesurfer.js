@@ -110,7 +110,6 @@ HTMLWidgets.widget({
             setTimeout(() => wsf.insertAnnotations(annotations), 100);
             return;
           }
-          debugger;
           annotations = HTMLWidgets.dataframeToD3(annotations);
 
           if (typeof annotations !== 'undefined') {
@@ -339,7 +338,6 @@ HTMLWidgets.widget({
       },
 
       ws_add_regions: function(message) {
-        debugger;
         wsf.insertAnnotations(message.annotations);
       },
 

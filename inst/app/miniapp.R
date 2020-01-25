@@ -21,12 +21,11 @@ server <- function(input, output, session) {
         backgroundColor = "#EBEBEB",
         cursorColor = "#FFFFFF",
         progressColor = "#00BFC4",
-        waveColor = "#F8766D",
-      height = 400
+        waveColor = "#F8766D"
     ) %>%
-      ws_minimap(height = 300, waveColor = "#F8766D", progressColor = "#00BFC4") %>%
+      ws_minimap(waveColor = "#F8766D", progressColor = "#00BFC4") %>%
       ws_cursor() %>%
-      ws_annotator()
+      ws_annotator(labels = c("birdsong", "silence", "insect"))
   })
 
 }
