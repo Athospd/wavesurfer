@@ -63,7 +63,7 @@ annotating their audio. It requires two inputs:
 
   - `wavs_folder` a string with the path to the wave files folder.
   - `annotations_folder` a string with where to store the annotations
-    (as a `.rds` containg a `tibble`)
+    (as a `.rds` contaning a `tibble`)
 
 <!-- end list -->
 
