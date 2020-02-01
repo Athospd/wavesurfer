@@ -26,7 +26,7 @@ R package.
 remotes::install_github("Athospd/wavesurfer")
 ```
 
-## Examples
+## Using in Shiny
 
 Usage at shiny app:
 
@@ -55,6 +55,27 @@ server <- function(input, output, session) {
 
 shinyApp(ui = ui, server = server)
 ```
+
+## annotator\_app()
+
+The goal of `annotator_app()` is to provide an quick way to one start
+annotating their audio. It requires two inputs:
+
+  - `wavs_folder` a string with the path to the wave files folder.
+  - `annotations_folder` a string with where to store the annotations
+    (as a `.rds` containg a `tibble`)
+
+<!-- end list -->
+
+``` r
+# This is a working code!
+annotator_app(
+  wavs_folder = system.file("wav", package = "wavesurfer"), 
+  annotations_folder = tempdir()
+)
+```
+
+## Live examples
 
 ### Annotator
 
