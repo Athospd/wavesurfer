@@ -7,7 +7,7 @@ Authors@R: c(
            role = c("aut", "cre"),
            email = "athos.damiani@curso-r.com",
            comment = "R interface"),
-    person(family = "katspaugh", 
+    person(family = "Katspaugh", 
            role = c("aut", "cph"),
            comment = "wavesurfer.js library, https://wavesurfer-js.org/, https://github.com/katspaugh/")
     )
@@ -27,7 +27,7 @@ Suggests:
     rmarkdown,
     colourpicker,
     tuneR
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Imports: 
     magrittr,
     htmlwidgets,

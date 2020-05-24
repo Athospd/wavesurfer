@@ -674,8 +674,6 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
       selected_audio(audio_df() %>% dplyr::slice(as.numeric(input$audio_df_selected_row)) %>% dplyr::pull(file_name))
     })
 
-
-
     output$input <- renderPrint({
       reactiveValuesToList(input)
     })
@@ -683,6 +681,4 @@ annotator_app <- function(wavs_folder, annotations_folder = getwd(), labels = NU
 
   # Run the application
   shinyApp(ui = ui, server = server, options = list(launch.browser = TRUE))
-
-
 }

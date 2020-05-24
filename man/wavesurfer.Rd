@@ -4,16 +4,36 @@
 \alias{wavesurfer}
 \title{Create a soundwave visualization}
 \usage{
-wavesurfer(audio = NULL, playPauseWithSpaceBar = TRUE, audioRate = 1,
-  autoCenter = TRUE, backgroundColor = NULL, barHeight = 1,
-  barGap = NULL, barWidth = NULL, cursorColor = "#333",
-  fillParent = TRUE, forceDecode = FALSE, hideScrollbar = FALSE,
-  interact = TRUE, loopSelection = TRUE, maxCanvasWidth = 4000,
-  minPxPerSec = 20, normalize = FALSE, progressColor = "#555",
-  responsive = FALSE, scrollParent = FALSE, skipLength = 2,
-  splitChannels = FALSE, waveColor = "#999", width = NULL,
-  height = NULL, elementId = NULL, annotations = NULL,
-  visualization = "wave")
+wavesurfer(
+  audio = NULL,
+  playPauseWithSpaceBar = TRUE,
+  audioRate = 1,
+  autoCenter = TRUE,
+  backgroundColor = NULL,
+  barHeight = 1,
+  barGap = NULL,
+  barWidth = NULL,
+  cursorColor = "#333",
+  fillParent = TRUE,
+  forceDecode = FALSE,
+  hideScrollbar = FALSE,
+  interact = TRUE,
+  loopSelection = TRUE,
+  maxCanvasWidth = 4000,
+  minPxPerSec = 20,
+  normalize = FALSE,
+  progressColor = "#555",
+  responsive = FALSE,
+  scrollParent = FALSE,
+  skipLength = 2,
+  splitChannels = FALSE,
+  waveColor = "#999",
+  width = NULL,
+  height = NULL,
+  elementId = NULL,
+  annotations = NULL,
+  visualization = "wave"
+)
 }
 \arguments{
 \item{audio}{a character. A path or a URL for the audio. E.g. "path/to/audio.mp3"

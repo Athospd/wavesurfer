@@ -4,8 +4,7 @@
 \alias{ws_on}
 \title{ws_on}
 \usage{
-ws_on(id, event, callback = htmlwidgets::JS("function() {}"),
-  replace = FALSE)
+ws_on(id, event, callback = htmlwidgets::JS("function() {}"), replace = FALSE)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}

@@ -4,8 +4,10 @@
 \alias{runExample}
 \title{runExample}
 \usage{
-runExample(example = c("annotator", "microphone", "plugins",
-  "decoration"), display.mode = "showcase")
+runExample(
+  example = c("annotator", "microphone", "plugins", "decoration"),
+  display.mode = "showcase"
+)
 }
 \arguments{
 \item{example}{The example app to launch: "annotator", "microphone", "plugins", "decoration".}

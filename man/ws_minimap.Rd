@@ -4,8 +4,7 @@
 \alias{ws_minimap}
 \title{ws_minimap}
 \usage{
-ws_minimap(id, waveColor = "#999", progressColor = "#555",
-  height = 30)
+ws_minimap(id, waveColor = "#999", progressColor = "#555", height = 30)
 }
 \arguments{
 \item{id}{wavesurfer object or a character of its respective element id.}
